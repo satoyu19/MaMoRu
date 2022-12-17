@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "967232942691",
+    "project_id": "mamoru-4f4b6",
+    "storage_bucket": "mamoru-4f4b6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967232942691:android:44fe6750ff658e25e2fe56",
+        "android_client_info": {
+          "package_name": "jp.ac.jec.cm0119.mamoru"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "967232942691-7kt8dmlapk7565fbm008gt8rntnaskoj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMpVYCUKLWXR_KRIOT_yVv7k6EEYJMtM8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967232942691-7kt8dmlapk7565fbm008gt8rntnaskoj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

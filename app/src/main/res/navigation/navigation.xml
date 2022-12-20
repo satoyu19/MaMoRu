@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/navigation">
-
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/loginFragment">
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_mainActivity"
+            app:destination="@id/mainActivity" />
+        <action
+            android:id="@+id/action_loginFragment_to_profileSetupFragment"
+            app:destination="@id/profileSetupFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register" >
+        <action
+            android:id="@+id/action_registerFragment_to_profileSetupFragment"
+            app:destination="@id/profileSetupFragment" />
+        <argument
+            android:name="user"
+            app:argType="jp.ac.jec.cm0119.mamoru.models.User" />
+    </fragment>
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" />
+    <fragment
+        android:id="@+id/profileSetupFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.ProfileSetupFragment"
+        android:label="fragment_profile_setup"
+        tools:layout="@layout/fragment_profile_setup" >
+        <action
+            android:id="@+id/action_profileSetupFragment2_to_registerFragment"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_profileSetupFragment2_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
 </navigation>

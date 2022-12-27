@@ -17,7 +17,7 @@ import jp.ac.jec.cm0119.mamoru.viewmodels.LoginViewModel
 class LoginFragment : Fragment(), View.OnClickListener {
 
     private var _binding: FragmentLoginBinding? = null
-    private val binding: FragmentLoginBinding get() = _binding!!
+    private val binding  get() = _binding!!
 
     private val viewModel: LoginViewModel by viewModels()
 
@@ -27,9 +27,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
     ): View? {
 
         _binding = FragmentLoginBinding.inflate(layoutInflater)
-        binding.register.setOnClickListener(this)
-        binding.passwordReset.setOnClickListener(this)
-        binding.loginBtn.setOnClickListener(this)
+
         return binding.root
 
     }
@@ -37,10 +35,10 @@ class LoginFragment : Fragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (viewModel.getCurrentUser() != null) {
-           val action = LoginFragmentDirections.actionLoginFragmentToMainActivity()
-            NavHostFragment.findNavController(this).navigate(action)
-        }
+        // TODO: currentuserが取得できればsetupに遷移
+        binding.register.setOnClickListener(this)
+        binding.passwordReset.setOnClickListener(this)
+        binding.loginBtn.setOnClickListener(this)
     }
 
     override fun onDestroyView() {
@@ -52,7 +50,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
         if (view != null) {
             when (view.id) {
                 binding.register.id -> {
-                    val action = LoginFragmentDirections.actionLoginFragmentToProfileSetupFragment()
+                    val action = LoginFragmentDirections.actionLoginFragmentToRegisterFragment()
                     NavHostFragment.findNavController(this).navigate(action)
                 }
                 binding.passwordReset.id -> {

@@ -6,8 +6,8 @@
     <string name="phone_number">+8190◯◯◯◯××××</string>
     <string name="continue_txt">確認</string>
     <string name="app_title">MaMoRu</string>
-    <string name="mail_hint">メールアドレス</string>
-    <string name="password_hint">パスワード</string>
+    <string name="mail_hint">メールアドレス*</string>
+    <string name="password_hint">パスワード*</string>
     <string name="new_register">新規登録</string>
     <string name="register_btn">登録</string>
     <string name="login_txt">ログイン</string>

@@ -1,15 +1,16 @@
 package jp.ac.jec.cm0119.mamoru.models
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import android.net.Uri
 
-@Parcelize
+//メールアドレスは必要か？
+
 data class User (
-    var uid: String? = null,
-    var name: String? = null,
+    var uid: String = "",
+    var name: String = "",
+    val mail: String = "",
     var phoneNumber: String? = null,
-    var profileImage: String? = null,
+    var profileImage: Uri? = null,
     var description: String? = null,
     var birthDay: String? = null,
-    var beacon: String? = null
-): Parcelable
+    var beacon: Boolean = false
+)

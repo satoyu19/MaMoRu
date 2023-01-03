@@ -20,11 +20,6 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
 
-//        if (savedInstanceState == null) {
-//            Log.d("Test", "LoginActivity")
-//            val fragmentTransaction = supportFragmentManager.beginTransaction()
-//            fragmentTransaction.commit()
-//        }
         setContentView(binding.root)
     }
 }

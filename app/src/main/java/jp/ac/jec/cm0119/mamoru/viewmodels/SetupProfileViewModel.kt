@@ -1,6 +1,7 @@
 package jp.ac.jec.cm0119.mamoru.viewmodels
 
 import android.net.Uri
+import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
@@ -29,46 +30,50 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
     var phoneNumber = ObservableField<String>()
     var birthDay = ObservableField<String>()
 
-    val firebaseDatabase = firebaseRepo.firebaseDatabase
-
     private var _profileImageData = MutableStateFlow(StorageState())
     val profileImageData: StateFlow<StorageState> = _profileImageData
 
-    private var _user = MutableStateFlow(DatabaseState())
-    val user: StateFlow<DatabaseState> = _user
+    private var _userState = MutableStateFlow(DatabaseState())
+    val userState: StateFlow<DatabaseState> = _userState
 
-    private var _profileImageUrl: MutableLiveData<Uri>? = null
-    val profileImageUrl: LiveData<Uri>? get() = _profileImageUrl
+    //storageのプロフィールイメージにアクセスするUrl
+    private var profileImageUrl: String? = null
 
-    // TODO: こいつらの呼び出し箇所の選定
+    //登録するuser情報
+    private var user: User? = null
+
     //firebaseStorageへのアップロード
-    fun addImageToStorage() {
-        _profileImageUrl?.value?.let { imageUri ->
-            firebaseRepo.addImageToFirebaseStorage(imageUri).onEach { response ->
+    fun addImageToStorage(imageUrl: Uri) {
+            firebaseRepo.addImageToFirebaseStorage(imageUrl).onEach { response ->
                 when (response) {
                     is Response.Loading ->
                         _profileImageData.value = StorageState(isLoading = true)
                     is Response.Failure ->
                         _profileImageData.value = StorageState(error = response.errorMessage!!)
-                    is Response.Success ->
-                        /** Storageの画像Urlが入る様にしたい **/
+                    is Response.Success -> {
+                        // TODO: profileUriの更新
                         _profileImageData.value = StorageState(data = response.data)
+                        profileImageUrl = response.data.toString()
+                    }
                 }
             }.launchIn(viewModelScope)
-        }
     }
 
-    fun setUserState(user: User) {
-        firebaseRepo.setUserToDatabase(user).onEach { response ->
-            when (response) {
-                is Response.Loading ->
-                    _user.value = DatabaseState(isLoading = true)
-                is Response.Failure ->
-                    _user.value = DatabaseState(error = response.errorMessage!!)
-                is Response.Success ->
-                    _user.value = DatabaseState(isSuccess = true)
-            }
-        }.launchIn(viewModelScope)
+
+    fun setUserState() {
+        makeUserState()
+            firebaseRepo.setUserToDatabase(user!!).onEach { response ->
+                when (response) {
+                    is Response.Loading ->
+                        _userState.value = DatabaseState(isLoading = true)
+                    is Response.Failure ->
+                        _userState.value = DatabaseState(error = response.errorMessage!!)
+                    is Response.Success -> {
+
+                        _userState.value = DatabaseState(isSuccess = true)
+                    }
+                }
+            }.launchIn(viewModelScope)
     }
 
     //カレンダー生成
@@ -85,8 +90,16 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
         datePicker.show(fragmentManager, "MATERIAL_DATE_PICKER")
     }
 
-    fun upLoadProfile(imageUrl: Uri) {
-        _profileImageUrl?.value = imageUrl
+    private fun makeUserState() {
+        user = User(
+            name = nameText.get() ?: "",
+            uid = firebaseRepo.currentUser!!.uid,
+            mail = firebaseRepo.currentUser!!.email ?: "",
+            phoneNumber = phoneNumber.get(),
+            profileImage = profileImageUrl,
+            description = description.get(),
+            birthDay = birthDay.get(),
+            beacon = false
+        )
     }
-
 }

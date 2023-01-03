@@ -24,12 +24,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                // TODO: 各処理ログにて確認
+                /**Flow collect**/
                 viewModel.userState.collect { State ->
                     if (State.isLoading) {
                         binding.progressBar2.visibility = View.VISIBLE
@@ -46,8 +47,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        // TODO: githubのgetUserDataみたいな処理を用いてユーザー情報の登録がされてない場合でログイン画面に戻る様にする、ログイン画面ではauthのcurrentUserを確認し、あればあとはユーザー情報の登録のみということになるため、setupFragmentに遷移させる
         viewModel.getUserData()
 
+        setContentView(binding.root)
     }
 }

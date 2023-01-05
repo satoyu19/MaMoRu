@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/familyFragment">
+    <fragment
+        android:id="@+id/updataProfileFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.UpdataProfileFragment"
+        android:label="fragment_updata_profile"
+        tools:layout="@layout/fragment_updata_profile" />
+    <fragment
+        android:id="@+id/chatRoomsFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.ChatRoomsFragment"
+        android:label="fragment_chat_rooms"
+        tools:layout="@layout/fragment_chat_rooms" >
+        <action
+            android:id="@+id/action_chatRoomsFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/setupBeaconFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.SetupBeaconFragment"
+        android:label="fragment_setup_beacon"
+        tools:layout="@layout/fragment_setup_beacon" />
+    <fragment
+        android:id="@+id/familyFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.FamilyFragment"
+        android:label="fragment_family"
+        tools:layout="@layout/fragment_family" />
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.ChatFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat" >
+        <action
+            android:id="@+id/action_chatFragment_to_chatRoomsFragment"
+            app:destination="@id/chatRoomsFragment" />
+    </fragment>
+</navigation>

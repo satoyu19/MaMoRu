@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/familyFragment"
+        android:enabled="true"
+        android:title="@string/family_fragment"
+        android:icon="@drawable/ic_family"
+        />
+
+    <item android:id="@+id/chatRoomsFragment"
+        android:enabled="true"
+        android:title="@string/chat_rooms_fragment"
+        android:icon="@drawable/ic_chat"
+        />
+
+    <item android:id="@+id/updataProfileFragment"
+        android:enabled="true"
+        android:title="@string/updata_profile_fragment"
+        android:icon="@drawable/ic_account"
+        />
+
+    <item android:id="@+id/setupBeaconFragment"
+        android:enabled="true"
+        android:title="@string/setup_beacon_fragment"
+        android:icon="@drawable/ic_beacon"
+        />
+</menu>

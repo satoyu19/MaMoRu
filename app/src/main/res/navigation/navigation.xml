@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_loginFragment_to_passwordResetFragment"
             app:destination="@id/passwordResetFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_setupProfileFragment"
+            app:destination="@id/setupProfileFragment" />
     </fragment>
     <fragment
         android:id="@+id/registerFragment"

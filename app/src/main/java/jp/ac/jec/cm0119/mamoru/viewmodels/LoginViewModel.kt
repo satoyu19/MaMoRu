@@ -28,6 +28,9 @@ class LoginViewModel @Inject constructor(
     private val _verification = MutableStateFlow(AuthState())
     val verification: StateFlow<AuthState> = _verification
 
+    var authCurrentUser:  FirebaseUser? = firebaseRepo.currentUser
+        private set
+
     fun login() {
         Log.d("Test", "mailAddress/${mailAddress.get().toString()}, password/${password.get().toString()}")
         firebaseRepo.login(mailAddress.get().toString(), password.get().toString())

@@ -36,6 +36,10 @@ class LoginFragment : Fragment() {
         _binding = FragmentLoginBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
+        if (viewModel.authCurrentUser != null) {    //auth登録が済んでおり、user情報登録が済んでいない場合
+            val action = LoginFragmentDirections.actionLoginFragmentToSetupProfileFragment()
+            NavHostFragment.findNavController(this).navigate(action)
+        }
         // repeatOnLifecycle launches the block in a new coroutine every time the
         // lifecycle is in the STARTED state (or above) and cancels it when it's STOPPED.
         viewLifecycleOwner.lifecycleScope.launch {

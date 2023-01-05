@@ -27,7 +27,6 @@ import jp.ac.jec.cm0119.mamoru.viewmodels.SetupProfileViewModel
 import kotlinx.coroutines.launch
 import java.lang.Thread.State
 
-// TODO: この画面にこれたらauth認証は終わっているため、それまでのviewのスタック(navigationで消す)は消す。この状態でアプリの閉じて再度開かれた時には、profile画面からスタートするようにする
 @AndroidEntryPoint
 class SetupProfileFragment : Fragment() {
 
@@ -56,10 +55,9 @@ class SetupProfileFragment : Fragment() {
                 launch {
                     viewModel.profileImageData.collect { state ->
                         if (state.isLoading) {
-                            //todo: viewにローディングViewを表示
+                            // TODO: image 
                         }
                         if (state.data != null) {   //成功
-                            // TODO: 更新中はバーを回すか何かする 
                             Glide.with(requireContext())
                                 .load(state.data.toString())
                                 .error(R.drawable.ic_account)
@@ -67,14 +65,14 @@ class SetupProfileFragment : Fragment() {
                         }
                         if (state.error.isNotBlank()) {
                             Log.d("Test", state.error)
+                            binding.progressBar3.visibility = View.INVISIBLE
+                            binding.setupLayout.visibility = View.VISIBLE
                         }
                     }
                 }
                 launch {
                     viewModel.userState.collect { state ->   //DatabaseState
-                        // TODO: 分岐で処理、
                         if (state.isLoading) {
-                            //todo: viewにローディングViewを表示
                             binding.progressBar3.visibility = View.VISIBLE
                             binding.setupLayout.visibility = View.INVISIBLE
                         }

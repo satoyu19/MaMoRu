@@ -1,5 +1,6 @@
 package jp.ac.jec.cm0119.mamoru.viewmodels
 
+import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,7 +23,9 @@ class PasswordResetViewModel @Inject constructor(private val firebaseRepo: Fireb
     val resetResult: StateFlow<AuthState> = _resetResult
 
     fun passwordReset() {
+        Log.d("Test", "passwordReset")
         mailAddress.get()?.let {
+            Log.d("Test", "passwordReset2")
             firebaseRepo.passwordReset(it).onEach { response ->
                 when (response) {
                     is Response.Loading -> {

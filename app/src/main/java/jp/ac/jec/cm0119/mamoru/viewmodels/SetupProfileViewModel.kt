@@ -51,7 +51,6 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
                     is Response.Failure ->
                         _profileImageData.value = StorageState(error = response.errorMessage!!)
                     is Response.Success -> {
-                        // TODO: profileUriの更新
                         _profileImageData.value = StorageState(data = response.data)
                         profileImageUrl = response.data.toString()
                     }

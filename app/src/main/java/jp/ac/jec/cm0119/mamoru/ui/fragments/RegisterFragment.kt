@@ -42,13 +42,13 @@ class RegisterFragment : Fragment() {
                 viewModel.user.collect { state ->
                     if (state.isLoading) {
                         binding.progressBar.visibility = View.VISIBLE
-                        binding.registerLayout.visibility = View.GONE
+                        binding.registerLayout.visibility = View.INVISIBLE
                     }
                     if (state.isSuccess) {   //成功
                         gotoSetupProfileFragment()
                     }
                     if (state.isFailure) {
-                        binding.progressBar.visibility = View.GONE
+                        binding.progressBar.visibility = View.INVISIBLE
                         binding.registerLayout.visibility = View.VISIBLE
                         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
                     }

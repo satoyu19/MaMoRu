@@ -26,6 +26,7 @@ import jp.ac.jec.cm0119.mamoru.databinding.FragmentPasswordResetBinding
 import jp.ac.jec.cm0119.mamoru.viewmodels.PasswordResetViewModel
 import kotlinx.coroutines.launch
 
+// TODO: SHAの登録が必要？メールが送信されない。処理はOK。アプリ消去でもログアウト状態とされ、処理される 
 @AndroidEntryPoint
 class PasswordResetFragment : Fragment() {
 
@@ -39,6 +40,7 @@ class PasswordResetFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPasswordResetBinding.inflate(layoutInflater)
+        binding.viewModel = viewModel
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -46,13 +48,14 @@ class PasswordResetFragment : Fragment() {
                 viewModel.resetResult.collect { state ->
                     if (state.isLoading) {
                         binding.progressBar5.visibility = View.VISIBLE
-                        binding.passwordResetLayout.visibility = View.GONE
+                        binding.passwordResetLayout.visibility = View.INVISIBLE
                     }
                     if (state.isSuccess) {   //成功
                         showDialog()
+                        gotoLoginFragment()
                     }
                     if (state.isFailure) {
-                        binding.progressBar5.visibility = View.GONE
+                        binding.progressBar5.visibility = View.INVISIBLE
                         binding.passwordResetLayout.visibility = View.VISIBLE
                         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
                     }
@@ -64,13 +67,9 @@ class PasswordResetFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // TODO: 確認用
-        binding.resetBtn.addTextChangedListener(PasswordResetButtonObserver(binding.resetBtn))
-        binding.back2.setOnClickListener {
-            val action =
-                PasswordResetFragmentDirections.actionPasswordResetFragmentToLoginFragment()
-            NavHostFragment.findNavController(this).navigate(action)
-        }
+
+        binding.resetMailAddress.addTextChangedListener(PasswordResetButtonObserver(binding.resetBtn))
+        binding.back2.setOnClickListener { gotoLoginFragment() }
     }
 
     override fun onDestroyView() {
@@ -81,6 +80,11 @@ class PasswordResetFragment : Fragment() {
     private fun showDialog() {
         val newFragment = CompleteResetDialog()
         newFragment.show(childFragmentManager, "reset")
+    }
+
+    private fun gotoLoginFragment() {
+        val action = PasswordResetFragmentDirections.actionPasswordResetFragmentToLoginFragment()
+        NavHostFragment.findNavController(this).navigate(action)
     }
 
     inner class PasswordResetButtonObserver(private val resetBtn: Button) : TextWatcher {

@@ -48,6 +48,7 @@ class SetupProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentSetupProfileBinding.inflate(layoutInflater)
+        binding.viewModel = viewModel
 
         /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {

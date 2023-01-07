@@ -27,7 +27,11 @@
         android:id="@+id/familyFragment"
         android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.FamilyFragment"
         android:label="fragment_family"
-        tools:layout="@layout/fragment_family" />
+        tools:layout="@layout/fragment_family" >
+        <action
+            android:id="@+id/action_familyFragment_to_registerFamilyFragment"
+            app:destination="@id/registerFamilyFragment" />
+    </fragment>
     <fragment
         android:id="@+id/chatFragment"
         android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.ChatFragment"
@@ -36,5 +40,14 @@
         <action
             android:id="@+id/action_chatFragment_to_chatRoomsFragment"
             app:destination="@id/chatRoomsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/registerFamilyFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.RegisterFamilyFragment"
+        android:label="fragment_register_family"
+        tools:layout="@layout/fragment_register_family" >
+        <action
+            android:id="@+id/action_registerFamilyFragment_to_familyFragment"
+            app:destination="@id/familyFragment" />
     </fragment>
 </navigation>

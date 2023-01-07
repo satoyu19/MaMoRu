@@ -41,15 +41,17 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 /**Flow collect**/
-                viewModel.userState.collect { State ->
-                    if (State.isLoading) {
+                viewModel.userState.collect { state ->
+                    if (state.isLoading) {
                         binding.progressBar2.visibility = View.VISIBLE
                     }
-                    if (State.isSuccess) {   //成功
-                        //登録済み
+                    if (state.isSuccess) {
                         binding.progressBar2.visibility = View.GONE
+                        binding.navHostFragment2.visibility = View.VISIBLE
+                        binding.bottomNavigationView.visibility = View.VISIBLE
+                        state.user?.let { viewModel.saveMyState(it) }
                     }
-                    if (State.isFailure) {
+                    if (state.isFailure) {
                         Log.d("Test", "databaseにuserの登録がないか、auth登録が済んでいない")
                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
                         startActivity(intent)

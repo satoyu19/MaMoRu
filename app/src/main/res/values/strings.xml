@@ -23,4 +23,7 @@
     <string name="chat_rooms_fragment">チャット</string>
     <string name="updata_profile_fragment">プロフィール</string>
     <string name="setup_beacon_fragment">ビーコン</string>
+    <string name="search_user_hint">ユーザー名</string>
+    <string name="user_id_hint">ユーザーID</string>
+    <string name="search_title">ユーザー検索</string>
 </resources>

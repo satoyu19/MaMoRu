@@ -5,9 +5,9 @@ import android.net.Uri
 //メールアドレスは必要か？
 
 data class User (
-    var uid: String,
-    var name: String,
-    var mail: String,
+    var uid: String? = null,
+    var name: String? = null,
+    var mail: String? = null,
     var phoneNumber: String? = null,
     var profileImage: String? = null,
     var description: String? = null,

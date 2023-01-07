@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 class PasswordResetFragment : Fragment() {
 
     private var _binding: FragmentPasswordResetBinding? = null
-    val binding get() = _binding!!
+    private val binding get() = _binding!!
 
     private val viewModel: PasswordResetViewModel by viewModels()
 

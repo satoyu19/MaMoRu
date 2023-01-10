@@ -1,8 +1,10 @@
 package jp.ac.jec.cm0119.mamoru.repository
 
+import android.accounts.NetworkErrorException
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.*
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpException
 import com.google.firebase.database.FirebaseDatabase
@@ -30,6 +32,7 @@ class FirebaseRepository @Inject constructor() {
 
     var currentUser: FirebaseUser? = null
 
+    // TODO: 接続状態の検出のコードを見て、初期に呼び出すことで常にオフラインかオンラインかを保存しておく、それを利用して書き込みの処理等では処理をさせない様にする
     init {
         //ログイン済みであればloggedOutLiveDataをfalse
         if (firebaseAuth.currentUser != null) {
@@ -49,14 +52,13 @@ class FirebaseRepository @Inject constructor() {
         emit(Response.Loading)
 
         try {
-            firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .await()   //.await() →　スレッドをブロックすることなく、タスクの完了を待つ。
+            firebaseAuth.createUserWithEmailAndPassword(email, password).await()   //.await() →　スレッドをブロックすることなく、タスクの完了を待つ。
 
             emit(Response.Success())
 
             loggedOutLiveData.postValue(false)
-        } catch (e: HttpException) {
-            emit(Response.Failure(e.localizedMessage ?: "インターネット接続を確認してください。"))
+        } catch (e: FirebaseNetworkException) {
+            emit(Response.Failure("インターネット接続を確認してください。"))
         } catch (e: FirebaseAuthException) {
             when (e) {
                 is FirebaseAuthWeakPasswordException -> emit(Response.Failure(errorMessage = "パスワードを強力にしてください。"))
@@ -65,7 +67,7 @@ class FirebaseRepository @Inject constructor() {
                 else -> emit(Response.Failure(errorMessage = "エラーです。もう一度やり直してください。"))
             }
         } catch (e: IOException) {
-            emit(Response.Failure(e.localizedMessage ?: "不明のエラーが発生しました。"))
+            emit(Response.Failure("不明のエラーが発生しました。"))
         } catch (e: Exception) {
             emit(Response.Failure(e.message.toString()))
         }
@@ -158,13 +160,14 @@ class FirebaseRepository @Inject constructor() {
             emit(Response.Loading)
             val currentUserUid = currentUser!!.uid
 
+            Log.d("Test", "test1")
             firebaseDatabase.reference.child(DATABASE_CHILD1).child(currentUserUid)
                 .setValue(user).await()
-
+            Log.d("Test", "test2")
             val snapshot =
                 firebaseDatabase.reference.child(DATABASE_CHILD1).child(currentUserUid).get()
                     .await()
-
+            Log.d("Test", "test3")
             if (snapshot.exists()) { //nullじゃなかったら
                 emit(Response.Success())
             } else {    //null = 登録がされていないため、処理を促す
@@ -180,9 +183,8 @@ class FirebaseRepository @Inject constructor() {
     fun getUserData() = flow {
         emit(Response.Loading)
 
-        val currentUser = firebaseAuth.currentUser  //取得できなければnull?
         if (currentUser != null) {
-            val snapshot = firebaseDatabase.reference.child(DATABASE_CHILD1).child(currentUser.uid).get().await()
+            val snapshot = firebaseDatabase.reference.child(DATABASE_CHILD1).child(currentUser!!.uid).get().await()
             if (snapshot.exists()) {    //データあり
                 val myState: User? = snapshot.getValue(User::class.java)
                 Log.d("Test", myState!!.uid!!)
@@ -204,7 +206,10 @@ class FirebaseRepository @Inject constructor() {
             if (snapshot.exists()) {
                 val user: User? = snapshot.getValue(User::class.java)
                 emit(Response.Success(user))
+            } else {
+                emit(Response.Failure("ユーザーが存在しません。"))
             }
+
         } catch (e: HttpException) {
             emit(Response.Failure(e.localizedMessage ?: "インターネット接続を確認してください。"))
         } catch (e: IOException) {

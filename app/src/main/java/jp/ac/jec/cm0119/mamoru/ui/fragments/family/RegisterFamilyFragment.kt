@@ -1,16 +1,14 @@
-package jp.ac.jec.cm0119.mamoru.ui.fragments
+package jp.ac.jec.cm0119.mamoru.ui.fragments.family
 
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,9 +17,8 @@ import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import jp.ac.jec.cm0119.mamoru.R
-import jp.ac.jec.cm0119.mamoru.databinding.FragmentRegisterBinding
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentRegisterFamilyBinding
-import jp.ac.jec.cm0119.mamoru.viewmodels.RegisterFamilyViewModel
+import jp.ac.jec.cm0119.mamoru.viewmodels.family.RegisterFamilyViewModel
 import kotlinx.coroutines.launch
 
 // TODO: firebaseRepoに登録するメソッド(ユーザーカードの追加ボタンで動作(currentuser.uidの配下にfamilyを作成、そこに追加))、ユーザー検索メソッド(edit入力後呼び出し)追加。

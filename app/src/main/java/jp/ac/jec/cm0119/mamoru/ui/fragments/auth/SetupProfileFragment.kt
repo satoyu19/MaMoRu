@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0119.mamoru.ui.fragments
+package jp.ac.jec.cm0119.mamoru.ui.fragments.auth
 
 import android.os.Bundle
 import android.text.Editable
@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -22,10 +21,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentSetupProfileBinding
 import jp.ac.jec.cm0119.mamoru.models.User
-import jp.ac.jec.cm0119.mamoru.utils.Response
 import jp.ac.jec.cm0119.mamoru.viewmodels.SetupProfileViewModel
 import kotlinx.coroutines.launch
-import java.lang.Thread.State
 
 @AndroidEntryPoint
 class SetupProfileFragment : Fragment() {

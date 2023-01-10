@@ -48,7 +48,7 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
             preferences[PreferenceKeys.myProfileImage] = myState.profileImage ?: ""
             preferences[PreferenceKeys.myDescription] = myState.description ?: ""
             preferences[PreferenceKeys.myBirthDay] = myState.birthDay ?: ""
-            preferences[PreferenceKeys.myBeacon] = myState.beacon
+            preferences[PreferenceKeys.myBeacon] = myState.beacon ?: false
         }
     }
 

@@ -12,7 +12,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        tools:context=".ui.fragments.SetupProfileFragment"
+        tools:context=".ui.fragments.auth.SetupProfileFragment"
         android:layout_height="match_parent"
         >
 

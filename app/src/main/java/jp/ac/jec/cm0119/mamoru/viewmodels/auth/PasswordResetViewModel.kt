@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0119.mamoru.viewmodels
+package jp.ac.jec.cm0119.mamoru.viewmodels.auth
 
 import android.util.Log
 import androidx.databinding.ObservableField

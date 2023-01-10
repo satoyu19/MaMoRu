@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -23,7 +22,7 @@ import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentPasswordResetBinding
-import jp.ac.jec.cm0119.mamoru.viewmodels.PasswordResetViewModel
+import jp.ac.jec.cm0119.mamoru.viewmodels.auth.PasswordResetViewModel
 import kotlinx.coroutines.launch
 
 // TODO: SHAの登録が必要？メールが送信されない。処理はOK。アプリ消去でもログアウト状態とされ、処理される 

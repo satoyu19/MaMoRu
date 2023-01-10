@@ -1,11 +1,9 @@
-package jp.ac.jec.cm0119.mamoru.viewmodels
+package jp.ac.jec.cm0119.mamoru.viewmodels.auth
 
 import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository

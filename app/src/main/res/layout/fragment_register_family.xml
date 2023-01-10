@@ -7,13 +7,13 @@
 
         <variable
             name="viewModel"
-            type="jp.ac.jec.cm0119.mamoru.viewmodels.RegisterFamilyViewModel" />
+            type="jp.ac.jec.cm0119.mamoru.viewmodels.family.RegisterFamilyViewModel" />
     </data>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.fragments.RegisterFamilyFragment">
+        tools:context=".ui.fragments.family.RegisterFamilyFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

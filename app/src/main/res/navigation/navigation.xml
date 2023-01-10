@@ -6,7 +6,7 @@
     app:startDestination="@id/loginFragment">
     <fragment
         android:id="@+id/loginFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.LoginFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.auth.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
@@ -24,7 +24,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.RegisterFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.auth.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" >
         <action
@@ -41,7 +41,7 @@
         tools:layout="@layout/activity_main" />
     <fragment
         android:id="@+id/setupProfileFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.SetupProfileFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.auth.SetupProfileFragment"
         android:label="SetupProfileFragment"
         tools:layout="@layout/fragment_setup_profile" >
         <action

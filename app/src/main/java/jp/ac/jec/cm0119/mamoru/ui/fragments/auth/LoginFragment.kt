@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0119.mamoru.ui.fragments
+package jp.ac.jec.cm0119.mamoru.ui.fragments.auth
 
 import android.os.Bundle
 import android.text.Editable
@@ -17,7 +17,7 @@ import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentLoginBinding
-import jp.ac.jec.cm0119.mamoru.viewmodels.LoginViewModel
+import jp.ac.jec.cm0119.mamoru.viewmodels.auth.LoginViewModel
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint

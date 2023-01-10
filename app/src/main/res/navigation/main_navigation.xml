@@ -11,7 +11,7 @@
         tools:layout="@layout/fragment_updata_profile" />
     <fragment
         android:id="@+id/chatRoomsFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.ChatRoomsFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.chat.ChatRoomsFragment"
         android:label="fragment_chat_rooms"
         tools:layout="@layout/fragment_chat_rooms" >
         <action
@@ -25,16 +25,19 @@
         tools:layout="@layout/fragment_setup_beacon" />
     <fragment
         android:id="@+id/familyFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.FamilyFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.family.FamilyFragment"
         android:label="fragment_family"
         tools:layout="@layout/fragment_family" >
         <action
             android:id="@+id/action_familyFragment_to_registerFamilyFragment"
             app:destination="@id/registerFamilyFragment" />
+        <action
+            android:id="@+id/action_familyFragment_to_userDetailFragment"
+            app:destination="@id/userDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.ChatFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.chat.ChatFragment"
         android:label="fragment_chat"
         tools:layout="@layout/fragment_chat" >
         <action
@@ -43,11 +46,26 @@
     </fragment>
     <fragment
         android:id="@+id/registerFamilyFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.RegisterFamilyFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.family.RegisterFamilyFragment"
         android:label="fragment_register_family"
         tools:layout="@layout/fragment_register_family" >
         <action
             android:id="@+id/action_registerFamilyFragment_to_familyFragment"
             app:destination="@id/familyFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/userDetailFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.family.UserDetailFragment"
+        android:label="fragment_user_detail"
+        tools:layout="@layout/fragment_user_detail" >
+        <action
+            android:id="@+id/action_userDetailFragment_to_familyFragment"
+            app:destination="@id/familyFragment" />
+        <action
+            android:id="@+id/action_userDetailFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+        <argument
+            android:name="user"
+            app:argType="jp.ac.jec.cm0119.mamoru.models.User" />
     </fragment>
 </navigation>

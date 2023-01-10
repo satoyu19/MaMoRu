@@ -7,43 +7,34 @@
 
         <variable
             name="viewModel"
-            type="jp.ac.jec.cm0119.mamoru.viewmodels.FamilyViewModel" />
+            type="jp.ac.jec.cm0119.mamoru.viewmodels.family.FamilyViewModel" />
     </data>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.fragments.FamilyFragment">
+        tools:context=".ui.fragments.family.FamilyFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/family_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/search_user_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <TextView
+                android:id="@+id/family_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintHorizontal_weight="4"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:hint="@string/search_user_hint"
+                android:text="@string/family_title"
+                android:textSize="16sp"
+                android:textStyle="normal"
+                app:layout_constraintHorizontal_weight="4"
                 app:layout_constraintEnd_toStartOf="@+id/add_user_btn"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:startIconDrawable="@drawable/ic_search_gray">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/search_user"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:lines="1"
-                    android:text="@={viewModel.userName}" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                />
 
             <ImageView
                 android:id="@+id/add_user_btn"
@@ -53,35 +44,23 @@
                 android:layout_gravity="center"
                 android:enabled="false"
                 android:src="@drawable/ic_person_add"
-                app:layout_constraintBottom_toBottomOf="@+id/search_user_layout"
+                app:layout_constraintBottom_toBottomOf="@+id/family_title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/search_user_layout"
-                app:layout_constraintTop_toTopOf="@+id/search_user_layout" />
+                app:layout_constraintStart_toEndOf="@+id/family_title"
+                app:layout_constraintTop_toTopOf="@+id/family_title" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/messageRecyclerView"
+                android:id="@+id/FamilyRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/white"
                 android:paddingHorizontal="16dp"
+                android:layout_marginTop="30dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/search_user_layout" />
-
-            <!--            <ImageView-->
-            <!--                android:id="@+id/imageView"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-            <!--                app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                app:layout_constraintHorizontal_bias="0.5"-->
-            <!--                app:layout_constraintStart_toStartOf="parent"-->
-            <!--                app:layout_constraintTop_toTopOf="parent"-->
-            <!--                app:layout_constraintVertical_bias="0.5"-->
-            <!--                app:srcCompat="@drawable/ic_not_face" />-->
-
+                app:layout_constraintTop_toBottomOf="@+id/family_title" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

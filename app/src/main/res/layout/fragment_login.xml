@@ -6,13 +6,13 @@
     <data>
         <variable
             name="viewModel"
-            type="jp.ac.jec.cm0119.mamoru.viewmodels.LoginViewModel" />
+            type="jp.ac.jec.cm0119.mamoru.viewmodels.auth.LoginViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.fragments.LoginFragment">
+        tools:context=".ui.fragments.auth.LoginFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/login_layout"

@@ -26,4 +26,5 @@
     <string name="search_user_hint">ユーザー名</string>
     <string name="user_id_hint">ユーザーID</string>
     <string name="search_title">ユーザー検索</string>
+    <string name="family_title">ファミリー</string>
 </resources>

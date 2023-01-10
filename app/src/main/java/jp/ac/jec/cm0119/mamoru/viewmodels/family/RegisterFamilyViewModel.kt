@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0119.mamoru.viewmodels
+package jp.ac.jec.cm0119.mamoru.viewmodels.family
 
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
@@ -8,7 +8,6 @@ import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.repository.DataStoreRepository
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.Response
-import jp.ac.jec.cm0119.mamoru.utils.uistate.AuthState
 import jp.ac.jec.cm0119.mamoru.utils.uistate.DatabaseState
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -32,7 +31,8 @@ class RegisterFamilyViewModel @Inject constructor(private val firebaseRepo: Fire
 
     fun searchUser() {
         userUid.get()?.let {
-            firebaseRepo.searchUser(it).onEach { response ->
+            // TODO: it
+            firebaseRepo.searchUser("J9xFBV6TTwQPt0GA9YS3kIqIFQf1").onEach { response ->
                 when (response) {
                     is Response.Loading -> _searchUser.value = DatabaseState(isLoading = true)
                     is Response.Success -> _searchUser.value = DatabaseState(isSuccess = true, user = response.data)

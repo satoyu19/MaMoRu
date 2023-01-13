@@ -60,7 +60,7 @@ class FamilyAdapter(private val myFamily: List<User>): RecyclerView.Adapter<Fami
         fun bind(item: User) {
             Glide.with(binding.userImage.context)
                 .load(item.profileImage)
-                .error(R.drawable.ic_account)
+                .placeholder(R.drawable.ic_account)
                 .into(binding.userImage)
 
             binding.userName.text = item.name

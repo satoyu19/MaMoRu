@@ -51,7 +51,7 @@ class RegisterFamilyFragment : Fragment() {
                             viewModel.setUserState(state.user)
                             Glide.with(requireContext())
                                 .load(state.user.profileImage)
-                                .error(R.drawable.ic_account)
+                                .placeholder(R.drawable.ic_account)
                                 .into(binding.userImage)
                         }
                         if (state.isFailure) {

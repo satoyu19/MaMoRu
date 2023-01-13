@@ -40,58 +40,32 @@ class FamilyFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        viewModel.buildOptions()
         if (viewModel.authCurrentUser != null) {
             viewModel.getMyFamily()
         }
 
         viewModel.myFamily.observe(viewLifecycleOwner) { myFamily ->
-            adapter = FamilyAdapter(myFamily)
-            manager = LinearLayoutManager(requireContext())
-            val dividerItemDecoration = DividerItemDecoration(
-                requireContext(),
-                LinearLayoutManager(requireContext()).orientation
-            )
-            binding.FamilyRecyclerView.addItemDecoration(dividerItemDecoration)
-            binding.FamilyRecyclerView.layoutManager = manager
-            binding.FamilyRecyclerView.adapter = adapter
+            if (myFamily.isNotEmpty()) {
+                adapter = FamilyAdapter(myFamily)
+                manager = LinearLayoutManager(requireContext())
+                val dividerItemDecoration = DividerItemDecoration(
+                    requireContext(),
+                    LinearLayoutManager(requireContext()).orientation
+                )
+                binding.familyRecycleView.addItemDecoration(dividerItemDecoration)
+                binding.familyRecycleView.layoutManager = manager
+                binding.familyRecycleView.adapter = adapter
+            } else {
+                binding.familyRecycleView.visibility = View.INVISIBLE
+                binding.notFamilyImage.visibility = View.VISIBLE
+                binding.notFamilyTxt.visibility = View.VISIBLE
+            }
         }
 
-
-//        viewModel.options?.let { option ->
-//            viewModel.myFamily?.let {  myFamily ->
-//                adapter = FamilyAdapter(option, myFamily)
-//                manager = LinearLayoutManager(requireContext())
-//                val dividerItemDecoration = DividerItemDecoration(
-//                    requireContext(),
-//                    LinearLayoutManager(requireContext()).orientation
-//                )
-//                binding.FamilyRecyclerView.addItemDecoration(dividerItemDecoration)
-//                binding.FamilyRecyclerView.layoutManager = manager
-//                binding.FamilyRecyclerView.adapter = adapter
-//            }
-//        }
-
-//        adapter.registerAdapterDataObserver()
         binding.addUserBtn.setOnClickListener {
             val action = FamilyFragmentDirections.actionFamilyFragmentToRegisterFamilyFragment()
             NavHostFragment.findNavController(this).navigate(action)
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        //Firebase Realtime Database からの更新のリッスンを終了
-//        adapter.stopListening()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        //Firebase Realtime Database からの更新のリッスンを開始
-//        if (viewModel.authCurrentUser != null) {
-////            adapter.startListening()
-//            viewModel.getMyFamily()
-//        }
     }
 
     override fun onDestroyView() {

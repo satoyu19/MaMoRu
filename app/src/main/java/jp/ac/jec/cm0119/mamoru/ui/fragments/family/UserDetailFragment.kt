@@ -34,7 +34,7 @@ class UserDetailFragment : Fragment() {
         val user: User = args.user
         Glide.with(requireContext())
             .load(user.profileImage)
-            .error(R.drawable.ic_account)
+            .placeholder(R.drawable.ic_account)
             .into(binding.profileImage)
 
         binding.familyUserName.text = user.name
@@ -53,7 +53,8 @@ class UserDetailFragment : Fragment() {
 
         // TODO: チャット画面に遷移
         binding.chatBtn.setOnClickListener { 
-            
+            val action = UserDetailFragmentDirections.actionUserDetailFragmentToChatFragment()
+            NavHostFragment.findNavController(this) .navigate(action)
         }
         
     }

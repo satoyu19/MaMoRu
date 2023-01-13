@@ -29,4 +29,6 @@
     <string name="family_title">ファミリー</string>
     <string name="updata">更新</string>
     <string name="phone_number_hint">090-○○○○-△△△△</string>
+    <string name="not_family">ファミリーが存在しません。\n追加ボタンからユーザーの追加を行ってください。</string>
+    <string name="message_hint">メッセージ入力</string>
 </resources>

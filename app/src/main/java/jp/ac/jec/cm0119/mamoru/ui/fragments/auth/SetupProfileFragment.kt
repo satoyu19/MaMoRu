@@ -59,7 +59,7 @@ class SetupProfileFragment : Fragment() {
                         if (state.data != null) {   //成功
                             Glide.with(requireContext())
                                 .load(state.data.toString())
-                                .error(R.drawable.ic_account)
+                                .placeholder(R.drawable.ic_account)
                                 .into(binding.profileImage)
                         }
                         if (state.error.isNotBlank()) {

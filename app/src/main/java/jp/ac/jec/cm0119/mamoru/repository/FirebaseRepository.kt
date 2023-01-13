@@ -7,9 +7,13 @@ import com.google.firebase.auth.*
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpException
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
+import jp.ac.jec.cm0119.mamoru.models.Message
 import jp.ac.jec.cm0119.mamoru.models.User
+import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_CHAT_ROOMS
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_USERS
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_FAMILY
+import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_NEW_CHATS
+import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_READ_CHATS
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PROFILE_IMAGE
 import jp.ac.jec.cm0119.mamoru.utils.Response
 import kotlinx.coroutines.channels.awaitClose
@@ -18,7 +22,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 class FirebaseRepository @Inject constructor() {
 
@@ -145,7 +151,7 @@ class FirebaseRepository @Inject constructor() {
     /**
      * FirebaseDatabase
      */
-    // TODO: オフライン時のsetVakueで止まるところとか,Throwableで処理したらどうなる？
+    // TODO: オフライン時のsetValueで止まるところとか,Throwableで処理したらどうなる？
     //ユーザー(自分)情報登録
     fun setMyStateToDatabase(myState: User) = flow {
         emit(Response.Loading)
@@ -303,7 +309,8 @@ class FirebaseRepository @Inject constructor() {
                 snapshot.children.forEach {
                     myFamilyUid.add(it.key.toString())
                 }
-                //todo 新規登録のユーザーからすぐ登録されるとusersにまだいなくて反映されない。どーする？この中でfirebaseDatabase.reference.child(DATABASE_USERS).get().addOnSuccessListener {  }呼んでとる？
+                //todo 新規登録のユーザーからすぐ登録されるとusersにまだいなくて反映されない。
+                // どーする？この中でfirebaseDatabase.reference.child(DATABASE_USERS).get().addOnSuccessListener {  }呼んでとる？
                 if (users?.exists() == true) {    //データあり
                     for (user in users.children) {
                         if (myFamilyUid.contains(user.key)) {
@@ -316,10 +323,64 @@ class FirebaseRepository @Inject constructor() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                trySendBlocking(Response.Failure())
+                trySendBlocking(Response.Failure(error.message))
             }
         })
         awaitClose {}
     }
 
+    //メッセージ送信
+    fun sendMessage(receiverUid: String, newMessage: String) = flow {
+        emit(Response.Loading)
+
+        try {
+            val randomKey = firebaseDatabase.reference.push().key
+            val receiverRoom = receiverUid + currentUser!!.uid
+            val receiverNewChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(receiverRoom).child(DATABASE_NEW_CHATS).child(randomKey!!)
+            val senderRoom = currentUser!!.uid + receiverUid
+            val senderReadChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom).child(DATABASE_READ_CHATS).child(randomKey!!)
+
+            val date = Date()
+            val message = Message(null, newMessage, currentUser!!.uid, null, date.time)
+
+            receiverNewChatRef.setValue(message).await()
+            senderReadChatRef.setValue(message).await()
+
+            emit(Response.Success())
+
+        } catch (e: Throwable) {
+            emit(Response.Failure(errorMessage = "メッセージの送信に失敗しました"))
+        }
+    }
+
+    //新しいメッセージの受信コールバック
+    fun receiveMessageToRead(receiverUid: String) = callbackFlow {
+        var newChatRef: DatabaseReference? = null
+        var readChatRef: DatabaseReference? = null
+        try {
+            val senderRoom = currentUser!!.uid + receiverUid
+            newChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom).child(DATABASE_NEW_CHATS)
+            readChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom).child(DATABASE_READ_CHATS)
+        } catch (e: Throwable) {
+            close(e)
+        }
+
+        newChatRef?.addValueEventListener(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (message in snapshot.children) {
+                    val nodeId = message.key
+                    readChatRef!!.child(nodeId!!).setValue(message).addOnSuccessListener {
+                        newChatRef.child(nodeId).setValue(null)
+                    }
+                }
+                trySendBlocking(Response.Success(data = null))
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                trySendBlocking(Response.Failure(error.message))
+            }
+
+        })
+        awaitClose {}
+    }
 }

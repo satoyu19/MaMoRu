@@ -40,11 +40,6 @@ class RegisterFamilyFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.readMyUser.collect { myState ->
-                        viewModel.setMyState(myState)
-                    }
-                }
-                launch {
                     viewModel.searchUser.collect { state ->
                         if (state.isLoading) {
                             binding.progressBar6.visibility = View.VISIBLE

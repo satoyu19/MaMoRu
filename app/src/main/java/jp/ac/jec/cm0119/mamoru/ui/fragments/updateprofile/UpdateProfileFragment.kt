@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0119.mamoru.ui.fragments.auth
+package jp.ac.jec.cm0119.mamoru.ui.fragments.updateprofile
 
 import android.os.Bundle
 import android.text.Editable
@@ -16,24 +16,22 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import jp.ac.jec.cm0119.mamoru.R
-import jp.ac.jec.cm0119.mamoru.databinding.FragmentSetupProfileBinding
-import jp.ac.jec.cm0119.mamoru.models.User
-import jp.ac.jec.cm0119.mamoru.viewmodels.SetupProfileViewModel
+import jp.ac.jec.cm0119.mamoru.databinding.FragmentRegisterFamilyBinding
+import jp.ac.jec.cm0119.mamoru.databinding.FragmentUpdateProfileBinding
+import jp.ac.jec.cm0119.mamoru.viewmodels.family.RegisterFamilyViewModel
+import jp.ac.jec.cm0119.mamoru.viewmodels.updateprofile.UpdateProfileViewModel
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SetupProfileFragment : Fragment() {
+class UpdateProfileFragment : Fragment() {
 
-    private var _binding: FragmentSetupProfileBinding? = null
+    private var _binding: FragmentUpdateProfileBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: SetupProfileViewModel by viewModels()
-
-    private lateinit var user: User
+    private val viewModel: UpdateProfileViewModel by viewModels()
 
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
@@ -41,21 +39,27 @@ class SetupProfileFragment : Fragment() {
                 viewModel.addImageToStorage(imageUri)
             }
         }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentSetupProfileBinding.inflate(layoutInflater)
+        _binding = FragmentUpdateProfileBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
-        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.readMyUser.collect { myState ->
+                        Glide.with(requireContext())
+                            .load(myState.profileImage)
+                            .error(R.drawable.ic_account)
+                            .into(binding.profileImage)
+                        viewModel.setMyState(myState)
+                    }
+                }
                 launch {
                     viewModel.profileImageData.collect { state ->
-                        if (state.isLoading) {
-                            // TODO: image 
-                        }
                         if (state.data != null) {   //成功
                             Glide.with(requireContext())
                                 .load(state.data.toString())
@@ -68,24 +72,27 @@ class SetupProfileFragment : Fragment() {
                     }
                 }
                 launch {
-                    viewModel.userState.collect { state ->   //DatabaseState
+                    viewModel.updateMyState.collect { state ->
                         if (state.isLoading) {
-                            binding.progressBar3.visibility = View.VISIBLE
-                            binding.setupLayout.visibility = View.INVISIBLE
+                            binding.progressBar7.visibility = View.VISIBLE
+                            binding.updateProfileLayout.visibility = View.INVISIBLE
                         }
-                        if (state.isSuccess) {   //成功
-                            val action = SetupProfileFragmentDirections.actionSetupProfileFragmentToMainActivity()
-                            NavHostFragment.findNavController(this@SetupProfileFragment).navigate(action)
+                        if (state.isSuccess) {
+                            binding.progressBar7.visibility = View.INVISIBLE
+                            binding.updateProfileLayout.visibility = View.VISIBLE
+                            viewModel.renewalMyState(state.user!!)
+                            Toast.makeText(requireContext(), "更新しました。", Toast.LENGTH_SHORT).show()
                         }
-                        if (state.error.isNotBlank()) {
-                            Log.d("Test", state.error)
-                            binding.progressBar3.visibility = View.INVISIBLE
-                            binding.setupLayout.visibility = View.VISIBLE
+                        if (state.isFailure) {
+                            binding.progressBar7.visibility = View.INVISIBLE
+                            binding.updateProfileLayout.visibility = View.VISIBLE
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
         }
+
         return binding.root
     }
 
@@ -101,13 +108,13 @@ class SetupProfileFragment : Fragment() {
         binding.profileImage.setOnClickListener {
             galleryResult.launch("image/*")
         }
-        
+
         //setupボタン
-        binding.setupBtn.setOnClickListener {
-            viewModel.setMyState()
+        binding.updateBtn.setOnClickListener {
+            viewModel.updateMyState()
         }
 
-        binding.name.addTextChangedListener(SetupButtonObserver(binding.setupBtn))
+        binding.name.addTextChangedListener(UpdateButtonObserver(binding.updateBtn))
     }
 
     override fun onDestroyView() {
@@ -115,16 +122,16 @@ class SetupProfileFragment : Fragment() {
         _binding = null
     }
 
-    inner class SetupButtonObserver(private val setupBtn: Button) : TextWatcher {
+    inner class UpdateButtonObserver(private val setupBtn: Button) : TextWatcher {
 
         override fun onTextChanged(charSequence: CharSequence?, p1: Int, p2: Int, p3: Int) {
             setupBtn.isEnabled = charSequence.toString().trim().isNotEmpty()
             if (charSequence.toString().trim().isNotEmpty()) {
-                binding.setupBtn.isEnabled = true
-                binding.setupBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active_btn))
+                binding.updateBtn.isEnabled = true
+                binding.updateBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active_btn))
             } else {
-                binding.setupBtn.isEnabled = false
-                binding.setupBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive_btn))
+                binding.updateBtn.isEnabled = false
+                binding.updateBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive_btn))
             }
         }
 

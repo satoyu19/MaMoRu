@@ -13,7 +13,7 @@
     <string name="register">新規登録</string>
     <string name="password_reset">パスワードを忘れた</string>
     <string name="name_hint">ニックネーム*</string>
-    <string name="birthday">dd/mm/yy</string>
+    <string name="birthday">生年月日</string>
     <string name="description">一言</string>
     <string name="next">次へ</string>
     <string name="profile_txt">プロフィール画像設定</string>
@@ -27,4 +27,6 @@
     <string name="user_id_hint">ユーザーID</string>
     <string name="search_title">ユーザー検索</string>
     <string name="family_title">ファミリー</string>
+    <string name="updata">更新</string>
+    <string name="phone_number_hint">090-○○○○-△△△△</string>
 </resources>

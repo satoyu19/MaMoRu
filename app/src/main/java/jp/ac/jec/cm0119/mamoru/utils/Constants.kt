@@ -1,14 +1,11 @@
 package jp.ac.jec.cm0119.mamoru.utils
 
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
-
 object Constants {
 
     //firebase
     const val PROFILE_IMAGE = "profile"
-    const val DATABASE_CHILD1 = "users"
-    const val DATABASE_CHILD_FAMILY = "family"
+    const val DATABASE_USERS = "users"
+    const val DATABASE_FAMILY = "families"
 
     //dataStore
     const val PREFERENCES_NAME = "mamoru_preferences"

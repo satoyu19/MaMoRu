@@ -8,5 +8,6 @@ data class DatabaseState (
     val isSuccess: Boolean = false,
     val isFailure: Boolean = false,
     val user: User? = null,
+    val myFamily: List<String>? = null,
     val error: String = ""
 )

@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0119.mamoru.ui.fragments
+package jp.ac.jec.cm0119.mamoru.ui.fragments.setupbeacon
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -14,10 +14,10 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [UpdataProfileFragment.newInstance] factory method to
+ * Use the [SetupBeaconFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class UpdataProfileFragment : Fragment() {
+class SetupBeaconFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -35,7 +35,7 @@ class UpdataProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_updata_profile, container, false)
+        return inflater.inflate(R.layout.fragment_setup_beacon, container, false)
     }
 
     companion object {
@@ -45,12 +45,12 @@ class UpdataProfileFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment UpdataProfileFragment.
+         * @return A new instance of fragment SetupBeaconFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            UpdataProfileFragment().apply {
+            SetupBeaconFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

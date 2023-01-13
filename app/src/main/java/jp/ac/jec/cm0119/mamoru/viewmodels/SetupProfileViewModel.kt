@@ -1,11 +1,8 @@
 package jp.ac.jec.cm0119.mamoru.viewmodels
 
 import android.net.Uri
-import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -48,20 +45,20 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
                 when (response) {
                     is Response.Loading ->
                         _profileImageData.value = StorageState(isLoading = true)
-                    is Response.Failure ->
-                        _profileImageData.value = StorageState(error = response.errorMessage!!)
                     is Response.Success -> {
                         _profileImageData.value = StorageState(data = response.data)
                         profileImageUrl = response.data.toString()
                     }
+                    is Response.Failure ->
+                        _profileImageData.value = StorageState(error = response.errorMessage)
                 }
             }.launchIn(viewModelScope)
     }
 
 
-    fun setUserState() {
-        makeUserState()
-            firebaseRepo.setUserToDatabase(user!!).onEach { response ->
+    fun setMyState() {
+        makeMyState()
+            firebaseRepo.setMyStateToDatabase(user!!).onEach { response ->
                 when (response) {
                     is Response.Loading ->
                         _userState.value = DatabaseState(isLoading = true)
@@ -89,7 +86,7 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
         datePicker.show(fragmentManager, "MATERIAL_DATE_PICKER")
     }
 
-    private fun makeUserState() {
+    private fun makeMyState() {
         user = User(
             name = nameText.get() ?: "",
             uid = firebaseRepo.currentUser!!.uid,

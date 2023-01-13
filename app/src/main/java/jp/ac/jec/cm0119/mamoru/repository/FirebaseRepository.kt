@@ -1,20 +1,20 @@
 package jp.ac.jec.cm0119.mamoru.repository
 
-import android.accounts.NetworkErrorException
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.*
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpException
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ktx.getValue
+import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import jp.ac.jec.cm0119.mamoru.models.User
-import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_CHILD1
-import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_CHILD_FAMILY
+import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_USERS
+import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_FAMILY
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PROFILE_IMAGE
 import jp.ac.jec.cm0119.mamoru.utils.Response
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
@@ -24,23 +24,16 @@ class FirebaseRepository @Inject constructor() {
 
     private var firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    // TODO: 使う？
-    private var loggedOutLiveData: MutableLiveData<Boolean> = MutableLiveData()
-
     private var firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
     private var firebaseStorage: FirebaseStorage = FirebaseStorage.getInstance()
 
     var currentUser: FirebaseUser? = null
 
-    // TODO: 接続状態の検出のコードを見て、初期に呼び出すことで常にオフラインかオンラインかを保存しておく、それを利用して書き込みの処理等では処理をさせない様にする
     init {
         //ログイン済みであればloggedOutLiveDataをfalse
         if (firebaseAuth.currentUser != null) {
-            loggedOutLiveData.postValue(false)
             currentUser = firebaseAuth.currentUser
         }
-        // TODO: 調べる 
-//        firebaseDatabase.setPersistenceEnabled(true)
     }
 
     /**
@@ -52,11 +45,11 @@ class FirebaseRepository @Inject constructor() {
         emit(Response.Loading)
 
         try {
-            firebaseAuth.createUserWithEmailAndPassword(email, password).await()   //.await() →　スレッドをブロックすることなく、タスクの完了を待つ。
+            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .await()   //.await() →　スレッドをブロックすることなく、タスクの完了を待つ。
 
-            emit(Response.Success())
+            emit(Response.Success(data = null))
 
-            loggedOutLiveData.postValue(false)
         } catch (e: FirebaseNetworkException) {
             emit(Response.Failure("インターネット接続を確認してください。"))
         } catch (e: FirebaseAuthException) {
@@ -85,8 +78,6 @@ class FirebaseRepository @Inject constructor() {
                 Response.Success(data = it)
             }!!))
 
-            loggedOutLiveData.postValue(false)
-
         } catch (e: HttpException) {
             Log.d("Test", e.localizedMessage?.toString() ?: "HttpError")
             emit(Response.Failure("インターネット接続を確認してください。"))
@@ -110,7 +101,7 @@ class FirebaseRepository @Inject constructor() {
         emit(Response.Loading)
         try {
             firebaseAuth.sendPasswordResetEmail(email).await()
-            emit(Response.Success())
+            emit(Response.Success(data = null))
         } catch (e: HttpException) {
             Log.d("Test", e.localizedMessage?.toString() ?: "HttpError")
             emit(Response.Failure("インターネット接続を確認してください。"))
@@ -144,33 +135,32 @@ class FirebaseRepository @Inject constructor() {
                 .putFile(imageUri).await()
                 .storage.downloadUrl.await()
 
-            emit(Response.Success(downloadUrl)) //うまくいった時
+            emit(Response.Success(data = downloadUrl)) //うまくいった時
 
         } catch (e: Exception) {
-            emit(Response.Failure(e.message.toString()))   //エラーだった時
+            emit(Response.Failure("画像のアップロードに失敗しました。"))   //エラーだった時
         }
     }
 
     /**
      * FirebaseDatabase
      */
-    //ユーザー情報登録
-    fun setUserToDatabase(user: User) = flow {
+    // TODO: オフライン時のsetVakueで止まるところとか,Throwableで処理したらどうなる？
+    //ユーザー(自分)情報登録
+    fun setMyStateToDatabase(myState: User) = flow {
+        emit(Response.Loading)
+
         try {
-            emit(Response.Loading)
             val currentUserUid = currentUser!!.uid
 
-            Log.d("Test", "test1")
-            firebaseDatabase.reference.child(DATABASE_CHILD1).child(currentUserUid)
-                .setValue(user).await()
-            Log.d("Test", "test2")
+            firebaseDatabase.reference.child(DATABASE_USERS).child(currentUserUid)
+                .setValue(myState).await()
             val snapshot =
-                firebaseDatabase.reference.child(DATABASE_CHILD1).child(currentUserUid).get()
+                firebaseDatabase.reference.child(DATABASE_USERS).child(currentUserUid).get()
                     .await()
-            Log.d("Test", "test3")
             if (snapshot.exists()) { //nullじゃなかったら
-                emit(Response.Success())
-            } else {    //null = 登録がされていないため、処理を促す
+                emit(Response.Success(data = null))
+            } else {    //null = 登録がされていない
                 emit(Response.Failure(errorMessage = "登録ができませんでした。もう一度やり直してください。"))
             }
 
@@ -179,15 +169,42 @@ class FirebaseRepository @Inject constructor() {
         }
     }
 
+    //ユーザー(自分)情報の更新
+    fun updateMyState(newMyState: User) = flow {
+        emit(Response.Loading)
+
+        try {
+            val currentUserUid = currentUser!!.uid
+            val updateData: DatabaseReference =
+                firebaseDatabase.reference.child(DATABASE_USERS).child(currentUserUid)
+
+            val myStateObj = HashMap<String, Any>()
+            myStateObj["name"] = newMyState.name.toString()
+            myStateObj["birthDay"] = newMyState.birthDay.toString()
+            myStateObj["description"] = newMyState.description.toString()
+
+            newMyState.profileImage?.let {
+                myStateObj["profileImage"] = newMyState.profileImage.toString()
+            }
+
+            updateData.updateChildren(myStateObj).await()
+            emit(Response.Success(data = newMyState))
+
+        } catch (e: Exception) {
+            emit(Response.Failure("更新に失敗しました。"))
+        }
+    }
+
     //ユーザー情報取得
     fun getUserData() = flow {
         emit(Response.Loading)
 
         if (currentUser != null) {
-            val snapshot = firebaseDatabase.reference.child(DATABASE_CHILD1).child(currentUser!!.uid).get().await()
+            val snapshot =
+                firebaseDatabase.reference.child(DATABASE_USERS).child(currentUser!!.uid).get()
+                    .await()
             if (snapshot.exists()) {    //データあり
                 val myState: User? = snapshot.getValue(User::class.java)
-                Log.d("Test", myState!!.uid!!)
                 emit(Response.Success(myState))
             } else {   //データなし
                 emit(Response.Failure())
@@ -197,12 +214,13 @@ class FirebaseRepository @Inject constructor() {
         }
     }
 
+    // TODO: 自身の場合の処理 
     //ユーザー検索
     fun searchUser(userUid: String) = flow {
         emit(Response.Loading)
         try {
             val snapshot =
-                firebaseDatabase.reference.child(DATABASE_CHILD1).child(userUid).get().await()
+                firebaseDatabase.reference.child(DATABASE_USERS).child(userUid).get().await()
             if (snapshot.exists()) {
                 val user: User? = snapshot.getValue(User::class.java)
                 emit(Response.Success(user))
@@ -223,40 +241,33 @@ class FirebaseRepository @Inject constructor() {
     }
 
     //familyユーザー追加
-    fun registerFamily(user: User, myState: User) = flow {
+    fun registerFamily(userUid: String) = flow {
         emit(Response.Loading)
-
         try {
 
             val currentUserUid = currentUser!!.uid
             var isRegistered = false
-
-            val snapshots =
-                firebaseDatabase.reference.child(DATABASE_CHILD1).child(currentUserUid).child(
-                    DATABASE_CHILD_FAMILY
-                ).get().await()
+            val familyRf = firebaseDatabase.reference.child(DATABASE_FAMILY)
+            val snapshots = familyRf.child(currentUserUid).get().await()
 
             if (snapshots.exists()) {
                 for (snapshot in snapshots.children) {
-                    val registeredUser: User? = snapshot.getValue(User::class.java)
-                    if (user.uid == registeredUser?.uid) {  //既に登録されているユーザーの場合
+                    if (userUid == snapshot.key) {  //既に登録されているユーザーの場合
                         isRegistered = true
                         emit(Response.Failure("登録済みのユーザーです。"))
                     }
                 }
             }
             if (!isRegistered) {    //登録済みでなければ自身側、相手側で登録
-                firebaseDatabase.reference.child(DATABASE_CHILD1)
-                    .child(currentUserUid)
-                    .child(DATABASE_CHILD_FAMILY)
-                    .child(user.uid!!).setValue(user)
+                val familyUserObj = HashMap<String, Any>()
 
-                firebaseDatabase.reference.child(DATABASE_CHILD1)
-                    .child(user.uid!!)
-                    .child(DATABASE_CHILD_FAMILY)
-                    .child(currentUserUid).setValue(myState)
+                familyUserObj["uid"] = userUid
+                familyRf.child(currentUserUid).child(userUid).setValue(familyUserObj)
 
-                emit(Response.Success())
+                familyUserObj["uid"] = currentUserUid
+                familyRf.child(userUid).child(currentUserUid).setValue(familyUserObj)
+
+                emit(Response.Success(data = null))
             }
         } catch (e: HttpException) {
             emit(Response.Failure(e.localizedMessage ?: "インターネット接続を確認してください。"))
@@ -269,4 +280,46 @@ class FirebaseRepository @Inject constructor() {
             Log.d("Test", "Exception/${e.message.toString()}")
         }
     }
+
+    //ファミリーに変更があればrecycleViewを更新したいため、callbackFlowを使う
+    fun getMyFamily() = callbackFlow {
+
+        var myFamilyRef: DatabaseReference? = null
+        var users: DataSnapshot? = null
+        try {
+            myFamilyRef = firebaseDatabase.reference.child(DATABASE_FAMILY).child(currentUser!!.uid)
+            users = firebaseDatabase.reference.child(DATABASE_USERS).get().await()
+
+        } catch (e: Throwable) {
+            close(e)
+        }
+
+        myFamilyRef?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                val myFamilyUid = mutableListOf<String>()
+                val myFamily = mutableListOf<User>()
+
+                snapshot.children.forEach {
+                    myFamilyUid.add(it.key.toString())
+                }
+                //todo 新規登録のユーザーからすぐ登録されるとusersにまだいなくて反映されない。どーする？この中でfirebaseDatabase.reference.child(DATABASE_USERS).get().addOnSuccessListener {  }呼んでとる？
+                if (users?.exists() == true) {    //データあり
+                    for (user in users.children) {
+                        if (myFamilyUid.contains(user.key)) {
+                            val userState: User? = user.getValue(User::class.java)
+                            userState?.let { myFamily.add(it) }
+                        }
+                    }
+                }
+                trySendBlocking(Response.Success(data = myFamily))
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                trySendBlocking(Response.Failure())
+            }
+        })
+        awaitClose {}
+    }
+
 }

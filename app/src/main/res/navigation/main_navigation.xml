@@ -6,9 +6,9 @@
     app:startDestination="@id/familyFragment">
     <fragment
         android:id="@+id/updataProfileFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.UpdataProfileFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.updateprofile.UpdateProfileFragment"
         android:label="fragment_updata_profile"
-        tools:layout="@layout/fragment_updata_profile" />
+        tools:layout="@layout/fragment_update_profile" />
     <fragment
         android:id="@+id/chatRoomsFragment"
         android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.chat.ChatRoomsFragment"
@@ -20,7 +20,7 @@
     </fragment>
     <fragment
         android:id="@+id/setupBeaconFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.SetupBeaconFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.setupbeacon.SetupBeaconFragment"
         android:label="fragment_setup_beacon"
         tools:layout="@layout/fragment_setup_beacon" />
     <fragment

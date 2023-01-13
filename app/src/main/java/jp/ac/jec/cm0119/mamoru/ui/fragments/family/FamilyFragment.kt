@@ -1,11 +1,13 @@
 package jp.ac.jec.cm0119.mamoru.ui.fragments.family
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,7 +33,6 @@ class FamilyFragment : Fragment() {
     ): View? {
 
         _binding = FragmentFamilyBinding.inflate(layoutInflater)
-        binding.viewModel = viewModel
 
         return binding.root
     }
@@ -39,16 +40,37 @@ class FamilyFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.buildOptions()
+//        viewModel.buildOptions()
+        if (viewModel.authCurrentUser != null) {
+            viewModel.getMyFamily()
+        }
 
-        viewModel.options?.let {
-            adapter = FamilyAdapter(it)
+        viewModel.myFamily.observe(viewLifecycleOwner) { myFamily ->
+            adapter = FamilyAdapter(myFamily)
             manager = LinearLayoutManager(requireContext())
-            val dividerItemDecoration = DividerItemDecoration(requireContext(), LinearLayoutManager(requireContext()).orientation)
+            val dividerItemDecoration = DividerItemDecoration(
+                requireContext(),
+                LinearLayoutManager(requireContext()).orientation
+            )
             binding.FamilyRecyclerView.addItemDecoration(dividerItemDecoration)
             binding.FamilyRecyclerView.layoutManager = manager
             binding.FamilyRecyclerView.adapter = adapter
         }
+
+
+//        viewModel.options?.let { option ->
+//            viewModel.myFamily?.let {  myFamily ->
+//                adapter = FamilyAdapter(option, myFamily)
+//                manager = LinearLayoutManager(requireContext())
+//                val dividerItemDecoration = DividerItemDecoration(
+//                    requireContext(),
+//                    LinearLayoutManager(requireContext()).orientation
+//                )
+//                binding.FamilyRecyclerView.addItemDecoration(dividerItemDecoration)
+//                binding.FamilyRecyclerView.layoutManager = manager
+//                binding.FamilyRecyclerView.adapter = adapter
+//            }
+//        }
 
 //        adapter.registerAdapterDataObserver()
         binding.addUserBtn.setOnClickListener {
@@ -57,16 +79,19 @@ class FamilyFragment : Fragment() {
         }
     }
 
-     override fun onPause() {
+    override fun onPause() {
         super.onPause()
         //Firebase Realtime Database からの更新のリッスンを終了
-        adapter.stopListening()
+//        adapter.stopListening()
     }
 
-     override fun onResume() {
+    override fun onResume() {
         super.onResume()
         //Firebase Realtime Database からの更新のリッスンを開始
-        adapter.startListening()
+//        if (viewModel.authCurrentUser != null) {
+////            adapter.startListening()
+//            viewModel.getMyFamily()
+//        }
     }
 
     override fun onDestroyView() {

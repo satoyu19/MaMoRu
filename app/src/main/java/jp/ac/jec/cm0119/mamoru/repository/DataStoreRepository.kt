@@ -1,6 +1,7 @@
 package jp.ac.jec.cm0119.mamoru.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
@@ -25,6 +26,7 @@ import javax.inject.Inject
 @ActivityRetainedScoped
 class DataStoreRepository @Inject constructor(@ApplicationContext private val context: Context) {
 
+    // TODO: 項目の精査
     private object PreferenceKeys {
         val myUid = stringPreferencesKey(PREFERENCES_MY_UID)
         val myName = stringPreferencesKey(PREFERENCES_MY_NAME)
@@ -33,13 +35,13 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         val myProfileImage = stringPreferencesKey(PREFERENCES_MY_PROFILEIMAGE)
         val myDescription = stringPreferencesKey(PREFERENCES_MY_DESCRIPTION)
         val myBirthDay = stringPreferencesKey(PREFERENCES_MY_BIRTHDAY)
-        var myBeacon = booleanPreferencesKey(PREFERENCES_MY_BEACON)    //todo ここエラーになるかも,firebaseがstring型で出すとしたら
+        var myBeacon = booleanPreferencesKey(PREFERENCES_MY_BEACON)
     }
 
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
-    suspend fun saveMyState(myState: User){
-        //dataStoreに書き込む
+    //初期書き込み
+    suspend fun saveMyState(myState: User) {
         context.dataStore.edit { preferences ->
             preferences[PreferenceKeys.myUid] = myState.uid ?: ""
             preferences[PreferenceKeys.myName] = myState.name ?: ""
@@ -52,33 +54,45 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         }
     }
 
-    /** context.dataStore.dataはFlow型であるため、Flowで受け取る,coroutinesのFlowであることに注意　**/
-    val readMyState: Flow<User> = context.dataStore.data
-        .catch { exception ->
-            if (exception is IOException) {
-                emit(emptyPreferences())
-            } else {
-                throw exception
-            }
+    //変更点書き換え
+    suspend fun renewalMyState(myState: User) {
+        Log.d("Test", "書き換え")
+        context.dataStore.edit { preferences ->
+            preferences[PreferenceKeys.myName] = myState.name ?: ""
+            preferences[PreferenceKeys.myPhoneNumber] = myState.phoneNumber ?: ""
+            preferences[PreferenceKeys.myProfileImage] = myState.profileImage ?: ""
+            preferences[PreferenceKeys.myDescription] = myState.description ?: ""
+            preferences[PreferenceKeys.myBirthDay] = myState.birthDay ?: ""
         }
-        .map { preferences ->
-            val myUid = preferences[PreferenceKeys.myUid] ?: ""
-            val myName = preferences[PreferenceKeys.myName] ?: ""
-            val myMail = preferences[PreferenceKeys.myMail] ?: ""
-            val myPhoneNumber = preferences[PreferenceKeys.myPhoneNumber] ?: ""
-            val myProfileImage = preferences[PreferenceKeys.myProfileImage] ?: ""
-            val myDescription = preferences[PreferenceKeys.myDescription] ?: ""
-            val myBirthDay = preferences[PreferenceKeys.myBirthDay] ?: ""
-            val myBeacon = preferences[PreferenceKeys.myBeacon] ?: false
-            User(
-                myUid,
-                myName,
-                myMail,
-                myPhoneNumber,
-                myProfileImage,
-                myDescription,
-                myBirthDay,
-                myBeacon
-            )
+    }
+
+/** context.dataStore.dataはFlow型であるため、Flowで受け取る,coroutinesのFlowであることに注意　**/
+val readMyState: Flow<User> = context.dataStore.data
+    .catch { exception ->
+        if (exception is IOException) {
+            emit(emptyPreferences())
+        } else {
+            throw exception
         }
+    }
+    .map { preferences ->
+        val myUid = preferences[PreferenceKeys.myUid] ?: ""
+        val myName = preferences[PreferenceKeys.myName] ?: ""
+        val myMail = preferences[PreferenceKeys.myMail] ?: ""
+        val myPhoneNumber = preferences[PreferenceKeys.myPhoneNumber] ?: ""
+        val myProfileImage = preferences[PreferenceKeys.myProfileImage] ?: ""
+        val myDescription = preferences[PreferenceKeys.myDescription] ?: ""
+        val myBirthDay = preferences[PreferenceKeys.myBirthDay] ?: ""
+        val myBeacon = preferences[PreferenceKeys.myBeacon] ?: false
+        User(
+            myUid,
+            myName,
+            myMail,
+            myPhoneNumber,
+            myProfileImage,
+            myDescription,
+            myBirthDay,
+            myBeacon
+        )
+    }
 }

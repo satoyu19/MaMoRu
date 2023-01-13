@@ -38,6 +38,7 @@ class UserDetailFragment : Fragment() {
             .into(binding.profileImage)
 
         binding.familyUserName.text = user.name
+        binding.userId.text = user.uid
         binding.familyDescription.text = user.description
         
         if (!user.birthDay.isNullOrEmpty()) {

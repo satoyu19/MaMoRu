@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="inactive_btn">#C3C1C1</color>
     <color name="active_btn">#1E88E5</color>
+    <color name="chat_bar">#3244AA</color>
 </resources>

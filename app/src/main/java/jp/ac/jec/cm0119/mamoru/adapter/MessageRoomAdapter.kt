@@ -11,6 +11,7 @@ import jp.ac.jec.cm0119.mamoru.databinding.FragmentChatRoomsBinding
 import jp.ac.jec.cm0119.mamoru.databinding.RowChatRoomBinding
 import jp.ac.jec.cm0119.mamoru.models.ChatRoom
 
+//ChatRoomAdapter
 //class MessageRoomAdapter (private val options: FirebaseRecyclerOptions<ChatRoom>): FirebaseRecyclerAdapter<ChatRoom, MessageRoomAdapter.ChatUserViewHolder>(options) {
 //
 //    inner class ChatUserViewHolder(itemView: View): ViewHolder(itemView) {
@@ -37,3 +38,4 @@ import jp.ac.jec.cm0119.mamoru.models.ChatRoom
 //        holder.bind(options.snapshots[position])
 //    }
 //}
+

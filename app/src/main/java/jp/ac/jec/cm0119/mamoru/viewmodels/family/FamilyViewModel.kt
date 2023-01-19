@@ -24,41 +24,16 @@ class FamilyViewModel @Inject constructor(private val firebaseRepo: FirebaseRepo
     var authCurrentUser: FirebaseUser? = firebaseRepo.currentUser
         private set
 
-//    var options: FirebaseRecyclerOptions<User>? = null
-//        private set
-
-//    private val _myFamily = MutableStateFlow(DatabaseState())
-//    val myFamily: StateFlow<DatabaseState> = _myFamily
-
-    //recycleViewが参照渡しで変化があれば描画されるならこれで良いが、されないならLiveDataとかにする必要がある？
     private var _myFamily = MutableLiveData<MutableList<User>>()
     val myFamily: LiveData<MutableList<User>>
-    get() = _myFamily
-
-//    fun buildOptions() {
-//        authCurrentUser?.uid?.let {
-//
-//            //クエリーのなかで項目の抜粋ができればuserからfamilyにあるidの値のみとする
-//            val query: Query = firebaseRepo.getFamilyQuery()
-//
-//            //familyがあるせいでUserに変更できないのでは?
-//            options = FirebaseRecyclerOptions.Builder<User>()
-//                .setQuery(query, User::class.java)
-//                .build()
-//        }
-//    }
+        get() = _myFamily
 
     fun getMyFamily() {
-        viewModelScope.launch {
-            firebaseRepo.getMyFamily().collect { state ->
-                when (state) {
-                    is Response.Success -> {
-                        _myFamily.value = state.data!!
-                    }
-                    else -> {}
-                }
+        firebaseRepo.getMyFamily().onEach { response ->
+            if (response.javaClass == Response.Success::class.java) {
+                _myFamily.value = response.data!!
             }
-        }
+        }.launchIn(viewModelScope)
     }
 }
 

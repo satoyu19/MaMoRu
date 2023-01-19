@@ -22,7 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentSetupProfileBinding
 import jp.ac.jec.cm0119.mamoru.models.User
-import jp.ac.jec.cm0119.mamoru.viewmodels.SetupProfileViewModel
+import jp.ac.jec.cm0119.mamoru.viewmodels.auth.SetupProfileViewModel
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -32,8 +32,6 @@ class SetupProfileFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: SetupProfileViewModel by viewModels()
-
-    private lateinit var user: User
 
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
@@ -53,16 +51,13 @@ class SetupProfileFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.profileImageData.collect { state ->
-                        if (state.isLoading) {
-                            // TODO: image 
-                        }
-                        if (state.data != null) {   //成功
+                        if (state.isSuccess) {   //成功
                             Glide.with(requireContext())
                                 .load(state.data.toString())
                                 .placeholder(R.drawable.ic_account)
                                 .into(binding.profileImage)
                         }
-                        if (state.error.isNotBlank()) {
+                        if (state.isSuccess) {
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -78,7 +73,6 @@ class SetupProfileFragment : Fragment() {
                             NavHostFragment.findNavController(this@SetupProfileFragment).navigate(action)
                         }
                         if (state.error.isNotBlank()) {
-                            Log.d("Test", state.error)
                             binding.progressBar3.visibility = View.INVISIBLE
                             binding.setupLayout.visibility = View.VISIBLE
                         }
@@ -101,7 +95,7 @@ class SetupProfileFragment : Fragment() {
         binding.profileImage.setOnClickListener {
             galleryResult.launch("image/*")
         }
-        
+
         //setupボタン
         binding.setupBtn.setOnClickListener {
             viewModel.setMyState()

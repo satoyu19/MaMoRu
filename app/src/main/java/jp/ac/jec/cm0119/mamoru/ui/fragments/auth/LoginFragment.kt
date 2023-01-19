@@ -40,13 +40,8 @@ class LoginFragment : Fragment() {
             val action = LoginFragmentDirections.actionLoginFragmentToSetupProfileFragment()
             NavHostFragment.findNavController(this).navigate(action)
         }
-        // repeatOnLifecycle launches the block in a new coroutine every time the
-        // lifecycle is in the STARTED state (or above) and cancels it when it's STOPPED.
+        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
-
-            // Trigger the flow and start listening for values.
-            // This happens when lifecycle is STARTED and stops
-            // collecting when the lifecycle is STOPPED
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.verification.collect { State ->
                     if (State.isLoading) {

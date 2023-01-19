@@ -47,6 +47,7 @@ class UpdateProfileFragment : Fragment() {
         _binding = FragmentUpdateProfileBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
+        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {

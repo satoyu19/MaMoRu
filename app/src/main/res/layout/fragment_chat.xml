@@ -17,13 +17,17 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#3244AA"
+            android:layout_height="0dp"
+            android:background="@color/chat_bar"
             android:minHeight="?attr/actionBarSize"
+            app:layout_constraintVertical_weight="1"
             android:theme="?attr/actionBarTheme"
+            app:layout_constraintBottom_toTopOf="@+id/chat_recycle_view"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="spread_inside">
 
             <ImageView
                 android:id="@+id/back5"
@@ -31,50 +35,53 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:src="@drawable/ic_arrow_back"
-                />
+                android:src="@drawable/ic_arrow_back" />
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profile_image"
-                android:layout_marginLeft="10dp"
-                android:src="@drawable/ic_account"
-                android:layout_gravity="center"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
-                />
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_account" />
+
             <TextView
                 android:id="@+id/name"
-                tools:text="profile name"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:textAlignment="center"
-                android:textStyle="bold|normal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                />
+                android:layout_gravity="center"
+                android:layout_marginStart="8dp"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold|normal"
+                tools:text="profile name" />
 
         </androidx.appcompat.widget.Toolbar>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycleView"
+            android:id="@+id/chat_recycle_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            />
+            android:layout_height="0dp"
+            app:layout_constraintVertical_weight="7"
+            app:layout_constraintBottom_toTopOf="@+id/materialCardView"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/materialCardView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_height="0dp"
+            app:layout_constraintVertical_weight="1"
             android:padding="10dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="10dp"
             app:cardUseCompatPadding="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chat_recycle_view">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -90,12 +97,11 @@
                     android:layout_marginStart="5dp"
                     android:background="@android:color/transparent"
                     android:gravity="start"
-                    app:layout_constraintHorizontal_weight="4"
                     android:hint="@string/message_hint"
-                    android:text="@={viewModel.message}"
                     android:padding="5dp"
                     android:paddingStart="5dp"
                     android:paddingEnd="1dp"
+                    android:text="@={viewModel.message}"
                     android:textColorHint="#424242"
                     android:textSize="15dp"
                     android:textStyle="bold"
@@ -103,38 +109,38 @@
                     app:layout_constraintEnd_toStartOf="@+id/image"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintHorizontal_chainStyle="spread"
+                    app:layout_constraintHorizontal_weight="4"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="TouchTargetSizeCheck" />
 
                 <ImageView
                     android:id="@+id/image"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    app:layout_constraintHorizontal_weight="1"
-                    android:padding="9dp"
+                    android:padding="7dp"
                     android:src="@drawable/ic_image"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/send"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="1"
                     app:layout_constraintStart_toEndOf="@+id/messageBox"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
                     android:id="@+id/send"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintHorizontal_weight="1"
-                    android:layout_gravity="center"
-                    android:background="@drawable/background_shape"
-                    android:backgroundTint="#3244AA"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_send"
+                    android:layout_height="match_parent"
+                    android:padding="7dp"
+                    android:enabled="false"
+                    android:src="@drawable/ic_send_gray"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="1"
                     app:layout_constraintStart_toEndOf="@+id/image"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/white" />
+                    />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>

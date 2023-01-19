@@ -41,6 +41,7 @@ class PasswordResetFragment : Fragment() {
         _binding = FragmentPasswordResetBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
+        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 

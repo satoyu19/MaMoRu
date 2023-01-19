@@ -2,6 +2,7 @@ package jp.ac.jec.cm0119.mamoru.repository
 
 import android.net.Uri
 import android.util.Log
+import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.*
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpException
@@ -14,10 +15,12 @@ import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_USERS
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_FAMILY
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_NEW_CHATS
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_READ_CHATS
+import jp.ac.jec.cm0119.mamoru.utils.Constants.MESSAGE_IMAGE
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PROFILE_IMAGE
 import jp.ac.jec.cm0119.mamoru.utils.Response
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -75,7 +78,6 @@ class FirebaseRepository @Inject constructor() {
     //todo: 何度も同じアカウントで失敗するとログインできなくなる。パスワード変更等で処置可能？
     //ログイン
     fun login(email: String, password: String) = flow {
-
         emit(Response.Loading)
 
         try {
@@ -129,12 +131,10 @@ class FirebaseRepository @Inject constructor() {
      * FirebaseStorage
      */
     //firebaseStorageに画像アップロード
-    fun addImageToFirebaseStorage(imageUri: Uri) = flow {
+    fun addImageToFirebaseStorageProfile(imageUri: Uri) = flow {
+        emit(Response.Loading)
         try {
-            emit(Response.Loading)
-
             val currentUserUid = currentUser!!.uid
-
             // 同じuidの場合更新される
             val downloadUrl = firebaseStorage.reference.child(PROFILE_IMAGE)
                 .child(currentUserUid)
@@ -143,8 +143,26 @@ class FirebaseRepository @Inject constructor() {
 
             emit(Response.Success(data = downloadUrl)) //うまくいった時
 
-        } catch (e: Exception) {
-            emit(Response.Failure("画像のアップロードに失敗しました。"))   //エラーだった時
+        } catch (e: Throwable) {
+            emit(Response.Failure("画像のアップロードに失敗しました。"))
+        }
+    }
+
+    fun addImageToFirebaseStorageMessage(imageUri: Uri) = flow {
+        val imageId = UUID.randomUUID().toString()
+        emit(Response.Loading)
+        try {
+
+            val downloadUrl = firebaseStorage.reference.child(MESSAGE_IMAGE)
+                .child(imageId)
+                .putFile(imageUri).await()
+                .storage.downloadUrl.await()
+
+            Log.d("onCreateView", "addImageToFirebaseStorageMessage: ${downloadUrl.toString()}")
+            emit(Response.Success(data = downloadUrl))
+
+        } catch (e: Throwable) {
+            emit(Response.Failure("画像のアップロードに失敗しました。"))
         }
     }
 
@@ -288,7 +306,7 @@ class FirebaseRepository @Inject constructor() {
     }
 
     //ファミリーに変更があればrecycleViewを更新したいため、callbackFlowを使う
-    fun getMyFamily() = callbackFlow {
+    fun getMyFamily(): Flow<Response.Success<MutableList<User>>> = callbackFlow {
 
         var myFamilyRef: DatabaseReference? = null
         var users: DataSnapshot? = null
@@ -322,65 +340,95 @@ class FirebaseRepository @Inject constructor() {
                 trySendBlocking(Response.Success(data = myFamily))
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                trySendBlocking(Response.Failure(error.message))
-            }
+            override fun onCancelled(error: DatabaseError) {}
         })
         awaitClose {}
     }
 
     //メッセージ送信
-    fun sendMessage(receiverUid: String, newMessage: String) = flow {
-        emit(Response.Loading)
+    fun sendMessage(
+        receiverUid: String,
+        newMessage: String?,
+        imageUri: Uri?,
+    ): Flow<Response.Failure> = flow {
 
         try {
-            val randomKey = firebaseDatabase.reference.push().key
             val receiverRoom = receiverUid + currentUser!!.uid
-            val receiverNewChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(receiverRoom).child(DATABASE_NEW_CHATS).child(randomKey!!)
+            val receiverRoomRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(receiverRoom)
             val senderRoom = currentUser!!.uid + receiverUid
-            val senderReadChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom).child(DATABASE_READ_CHATS).child(randomKey!!)
+            val senderRoomRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom)
 
             val date = Date()
-            val message = Message(null, newMessage, currentUser!!.uid, null, date.time)
+            var lastMsgObj = HashMap<String, Any>()
+            val message: Message
 
-            receiverNewChatRef.setValue(message).await()
-            senderReadChatRef.setValue(message).await()
+            //todo テスト
+            if (imageUri != null) { //画像メッセージ
+                message = Message( "photo", currentUser!!.uid, imageUri.toString(), date.time)
+                lastMsgObj["lastMsg"] = "photo"
+                lastMsgObj["time"] = date.time
+            } else {    //文字メッセージ
+                message = Message( newMessage, currentUser!!.uid, null, date.time)
+                lastMsgObj["lastMsg"] = newMessage!!
+                lastMsgObj["time"] = date.time
+            }
 
-            emit(Response.Success())
+
+            val randomKey = firebaseDatabase.reference.push().key
+
+            senderRoomRef.child(DATABASE_READ_CHATS).child(randomKey!!).setValue(message).await()
+            receiverRoomRef.child(DATABASE_NEW_CHATS).child(randomKey).setValue(message).await()
+            receiverRoomRef.updateChildren(lastMsgObj).await()
+            senderRoomRef.updateChildren(lastMsgObj).await()
 
         } catch (e: Throwable) {
             emit(Response.Failure(errorMessage = "メッセージの送信に失敗しました"))
         }
     }
 
-    //新しいメッセージの受信コールバック
-    fun receiveMessageToRead(receiverUid: String) = callbackFlow {
+    //新しいメッセージ受信のコールバック
+    fun newReceiveMessageToRead(receiverUid: String): Flow<Response.Failure> = callbackFlow {
         var newChatRef: DatabaseReference? = null
         var readChatRef: DatabaseReference? = null
         try {
             val senderRoom = currentUser!!.uid + receiverUid
-            newChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom).child(DATABASE_NEW_CHATS)
-            readChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom).child(DATABASE_READ_CHATS)
+            //未読ノード
+            newChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom)
+                .child(DATABASE_NEW_CHATS)
+            //既読ずみノード
+            readChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom)
+                .child(DATABASE_READ_CHATS)
+
         } catch (e: Throwable) {
             close(e)
         }
 
-        newChatRef?.addValueEventListener(object: ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (message in snapshot.children) {
-                    val nodeId = message.key
+        newChatRef?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshots: DataSnapshot) {
+                for (snapshot in snapshots.children) {
+                    val nodeId = snapshot.key
+                    val message: Message? = snapshot.getValue(Message::class.java)
                     readChatRef!!.child(nodeId!!).setValue(message).addOnSuccessListener {
                         newChatRef.child(nodeId).setValue(null)
                     }
                 }
-                trySendBlocking(Response.Success(data = null))
             }
-
             override fun onCancelled(error: DatabaseError) {
-                trySendBlocking(Response.Failure(error.message))
+                trySendBlocking(Response.Failure("メッセージの読み込みに失敗しました。"))
             }
-
         })
         awaitClose {}
+    }
+
+//    fun MessegeRoom
+
+    fun getMessageRoomOptions(receiverUid: String): FirebaseRecyclerOptions<Message> {
+        val senderRoom = currentUser!!.uid + receiverUid
+        val readChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom)
+            .child(DATABASE_READ_CHATS)
+
+        return FirebaseRecyclerOptions.Builder<Message>()
+            .setQuery(readChatRef, Message::class.java)
+            .build()
     }
 }

@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="jp.ac.jec.cm0119.mamoru.viewmodels.SetupProfileViewModel" />
+            type="jp.ac.jec.cm0119.mamoru.viewmodels.auth.SetupProfileViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

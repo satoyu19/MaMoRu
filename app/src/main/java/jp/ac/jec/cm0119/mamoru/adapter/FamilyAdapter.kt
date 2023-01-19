@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
@@ -16,47 +18,9 @@ import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.ui.fragments.family.FamilyFragmentDirections
 import jp.ac.jec.cm0119.mamoru.ui.fragments.family.UserDetailFragmentDirections
 
-//users(familyと比べて抜粋されたuser(User型))を表示する様に変更する
-//class FamilyAdapter(private val options: FirebaseRecyclerOptions<User>, private val myFamilyUid: List<String>): FirebaseRecyclerAdapter<User, FamilyAdapter.UserViewHolder>(options) {
-//
-//    class UserViewHolder(val binding: RowFamilyBinding): ViewHolder(binding.root) {
-//        fun bind(item: User) {
-//            Glide.with(binding.userImage.context)
-//                .load(item.profileImage)
-//                .error(R.drawable.ic_account)
-//                .into(binding.userImage)
-//
-//            binding.userName.text = item.name
-//        }
-//    }
-//
-//    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
-//        val inflater = LayoutInflater.from(parent.context)
-//
-//        val view = inflater.inflate(R.layout.row_family, parent, false)
-//        val binding = RowFamilyBinding.bind(view)
-//
-//        return UserViewHolder(binding)
-//    }
-//
-//    override fun onBindViewHolder(holder: UserViewHolder, position: Int, model: User) {
-//
-//        val user: User = options.snapshots[position]
-//
-//        if (myFamilyUid.contains(user.uid.toString())){
-//            holder.bind(user)
-//            holder.binding.familyRowLayout.setOnClickListener {
-//                    val action =
-//                        FamilyFragmentDirections.actionFamilyFragmentToUserDetailFragment(user)
-//                    holder.itemView.findNavController().navigate(action)
-//                }
-//            }
-//    }
-//}
+class FamilyAdapter: ListAdapter<User, FamilyAdapter.UserViewHolder>(FamilyCallback()) {
 
-class FamilyAdapter(private val myFamily: List<User>): RecyclerView.Adapter<FamilyAdapter.UserViewHolder>() {
-
-    class UserViewHolder(val binding: RowFamilyBinding): ViewHolder(binding.root) {
+    inner class UserViewHolder(val binding: RowFamilyBinding): ViewHolder(binding.root) {
         fun bind(item: User) {
             Glide.with(binding.userImage.context)
                 .load(item.profileImage)
@@ -76,16 +40,24 @@ class FamilyAdapter(private val myFamily: List<User>): RecyclerView.Adapter<Fami
         return UserViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = myFamily.size
-
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
-        val user: User = myFamily[position]
-        Log.d("Test","Ok")
+        val user: User = getItem(position)
         holder.bind(user)
         holder.binding.familyRowLayout.setOnClickListener {
                 val action =
                     FamilyFragmentDirections.actionFamilyFragmentToUserDetailFragment(user)
                 holder.itemView.findNavController().navigate(action)
             }
+    }
+}
+
+class FamilyCallback : DiffUtil.ItemCallback<User>() {
+
+    override fun areItemsTheSame(oldFamily: User, newFamily: User): Boolean {
+        return oldFamily.uid == newFamily.uid
+    }
+
+    override fun areContentsTheSame(oldFamily: User, newFamily: User): Boolean {
+        return oldFamily == newFamily
     }
 }

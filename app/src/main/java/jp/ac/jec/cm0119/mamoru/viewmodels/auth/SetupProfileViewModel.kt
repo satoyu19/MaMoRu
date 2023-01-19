@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0119.mamoru.viewmodels
+package jp.ac.jec.cm0119.mamoru.viewmodels.auth
 
 import android.net.Uri
 import androidx.databinding.ObservableField
@@ -41,16 +41,15 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
 
     //firebaseStorageへのアップロード
     fun addImageToStorage(imageUrl: Uri) {
-            firebaseRepo.addImageToFirebaseStorage(imageUrl).onEach { response ->
+            firebaseRepo.addImageToFirebaseStorageProfile(imageUrl).onEach { response ->
                 when (response) {
-                    is Response.Loading ->
-                        _profileImageData.value = StorageState(isLoading = true)
                     is Response.Success -> {
-                        _profileImageData.value = StorageState(data = response.data)
+                        _profileImageData.value = StorageState(isSuccess = true, data = response.data)
                         profileImageUrl = response.data.toString()
                     }
                     is Response.Failure ->
-                        _profileImageData.value = StorageState(error = response.errorMessage)
+                        _profileImageData.value = StorageState(isFailure = true, error = response.errorMessage)
+                    else -> {}
                 }
             }.launchIn(viewModelScope)
     }
@@ -63,7 +62,7 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
                     is Response.Loading ->
                         _userState.value = DatabaseState(isLoading = true)
                     is Response.Failure ->
-                        _userState.value = DatabaseState(error = response.errorMessage!!)
+                        _userState.value = DatabaseState(error = response.errorMessage)
                     is Response.Success -> {
 
                         _userState.value = DatabaseState(isSuccess = true)

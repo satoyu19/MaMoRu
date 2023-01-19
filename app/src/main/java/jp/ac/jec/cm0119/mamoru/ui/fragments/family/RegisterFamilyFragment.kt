@@ -37,6 +37,7 @@ class RegisterFamilyFragment : Fragment() {
         _binding = FragmentRegisterFamilyBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
+        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {

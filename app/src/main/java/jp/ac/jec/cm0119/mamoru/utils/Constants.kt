@@ -4,6 +4,7 @@ object Constants {
 
     //firebase
     const val PROFILE_IMAGE = "profile"
+    const val MESSAGE_IMAGE = "message"
     const val DATABASE_USERS = "users"
     const val DATABASE_FAMILY = "families"
     const val DATABASE_CHAT_ROOMS = "rooms"
@@ -24,4 +25,6 @@ object Constants {
     //message
     const val ITEM_SEND = 1   //送り
     const val ITEM_RECEIVE = 2    //受け
+    const val ITEM_SEND_IMG = 3
+    const val ITEM_RECEIVE_IMG = 4
 }

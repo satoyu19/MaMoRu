@@ -45,16 +45,16 @@ class UpdateProfileViewModel @Inject constructor(private val firebaseRepo: Fireb
 
     //firebaseStorageへのアップロード
     fun addImageToStorage(imageUrl: Uri) {
-        firebaseRepo.addImageToFirebaseStorage(imageUrl).onEach { response ->
+        firebaseRepo.addImageToFirebaseStorageProfile(imageUrl).onEach { response ->
             when (response) {
-                is Response.Loading ->
-                    _profileImageData.value = StorageState(isLoading = true)
                 is Response.Success -> {
                     _profileImageData.value = StorageState(data = response.data)
                     profileImageUrl = response.data.toString()
                 }
                 is Response.Failure ->
                     _profileImageData.value = StorageState(error = response.errorMessage)
+
+                else -> {}
             }
         }.launchIn(viewModelScope)
     }

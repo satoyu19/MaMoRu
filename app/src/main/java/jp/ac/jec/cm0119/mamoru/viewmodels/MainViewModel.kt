@@ -7,12 +7,10 @@ import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.repository.DataStoreRepository
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.Response
-import jp.ac.jec.cm0119.mamoru.utils.uistate.AuthState
 import jp.ac.jec.cm0119.mamoru.utils.uistate.DatabaseState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,9 +35,9 @@ class MainViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
         }.launchIn(viewModelScope)
     }
 
-    fun saveMyState(myState: User){
+    fun saveMyInfo(myInfo: User){
         viewModelScope.launch(Dispatchers.IO) {
-            dataStoreRepo.saveMyState(myState)
+            dataStoreRepo.saveMyInfo(myInfo)
         }
     }
 }

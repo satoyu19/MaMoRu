@@ -26,7 +26,7 @@ class UpdateProfileViewModel @Inject constructor(private val firebaseRepo: Fireb
     var phoneNumber = ObservableField<String>()
     var birthDay = ObservableField<String>()
 
-    val readMyUser: Flow<User> = dataStoreRepo.readMyState
+    val readMyUser: Flow<User> = dataStoreRepo.readMyInfo
     private var profileImageUrl: String? = null
     val currentUserUid = firebaseRepo.currentUser!!.uid
 
@@ -62,7 +62,7 @@ class UpdateProfileViewModel @Inject constructor(private val firebaseRepo: Fireb
     fun updateMyState() {
 
         val myState = User(name = nameText.get(), profileImage = profileImageUrl, description = description.get(), birthDay = birthDay.get())
-        firebaseRepo.updateMyState(myState).onEach { response ->
+        firebaseRepo.updateMyInfo(myState).onEach { response ->
             when (response) {
                 is Response.Loading ->
                     _updateMyState.value = DatabaseState(isLoading = true)
@@ -90,7 +90,7 @@ class UpdateProfileViewModel @Inject constructor(private val firebaseRepo: Fireb
 
     fun renewalMyState(newMyState: User) {
         viewModelScope.launch(Dispatchers.IO) {
-            dataStoreRepo.renewalMyState(newMyState)
+            dataStoreRepo.renewalMyInfo(newMyState)
         }
     }
 }

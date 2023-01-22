@@ -41,7 +41,7 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
     //初期書き込み
-    suspend fun saveMyState(myState: User) {
+    suspend fun saveMyInfo(myState: User) {
         context.dataStore.edit { preferences ->
             preferences[PreferenceKeys.myUid] = myState.uid ?: ""
             preferences[PreferenceKeys.myName] = myState.name ?: ""
@@ -55,7 +55,7 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
     }
 
     //変更点書き換え
-    suspend fun renewalMyState(myState: User) {
+    suspend fun renewalMyInfo(myState: User) {
         Log.d("Test", "書き換え")
         context.dataStore.edit { preferences ->
             preferences[PreferenceKeys.myName] = myState.name ?: ""
@@ -66,8 +66,10 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         }
     }
 
+
+    // TODO: State →　Info変換 
 /** context.dataStore.dataはFlow型であるため、Flowで受け取る,coroutinesのFlowであることに注意　**/
-val readMyState: Flow<User> = context.dataStore.data
+val readMyInfo: Flow<User> = context.dataStore.data
     .catch { exception ->
         if (exception is IOException) {
             emit(emptyPreferences())

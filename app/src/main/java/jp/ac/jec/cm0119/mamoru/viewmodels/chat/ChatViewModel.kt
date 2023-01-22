@@ -42,7 +42,7 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
     val imageMessage: StateFlow<StorageState> = _imageMessage
 
     fun setOptions() {
-        options = receiverUid?.let { firebaseRepo.getMessageRoomOptions(it) }
+        options = receiverUid?.let { firebaseRepo.getMessageOptions(it) }
     }
 
     fun sendMessage(imageUri: Uri? = null) {
@@ -62,6 +62,9 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
         }
     }
 
+    fun removeNewChatLister() {
+        firebaseRepo.isNewChatListener = false
+    }
 
     fun addImageToStorage(imageUrl: Uri) {
         firebaseRepo.addImageToFirebaseStorageMessage(imageUrl).onEach { response ->

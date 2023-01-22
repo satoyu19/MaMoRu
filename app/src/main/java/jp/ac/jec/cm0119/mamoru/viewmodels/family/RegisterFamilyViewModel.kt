@@ -29,12 +29,12 @@ class RegisterFamilyViewModel @Inject constructor(
 
     private var searchUserUid: String? = null
 
-    val readMyUser: Flow<User> = dataStoreRepo.readMyState
+    val readMyUser: Flow<User> = dataStoreRepo.readMyInfo
 
     fun searchUser() {
         userUid.get()?.let { userId ->
             // TODO: it
-            firebaseRepo.searchUser("CQBEbZ2p7URegJf8sLIK0NSfDSj1").onEach { response ->
+            firebaseRepo.searchUser("vvPYn1vPLxhFSSIbzikmRfPaxHz2").onEach { response ->
                 when (response) {
                     is Response.Loading -> _searchUser.value = DatabaseState(isLoading = true)
                     is Response.Success -> _searchUser.value =

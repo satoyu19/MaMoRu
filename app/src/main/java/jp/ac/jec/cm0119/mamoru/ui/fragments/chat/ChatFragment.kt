@@ -3,6 +3,7 @@ package jp.ac.jec.cm0119.mamoru.ui.fragments.chat
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -44,6 +45,7 @@ class ChatFragment : Fragment() {
                 viewModel.addImageToStorage(it)
             }
         }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,12 +57,14 @@ class ChatFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             // TODO　onStopで詳細画面に遷移し、戻る際はonStart()で開始されるため、その間生きているviewModelのimageMessageのデータで実行されてしまう。viewModelのresetImageMessageで解決はしている
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                viewModel.imageMessage.collect { state ->
-                    if (state.isSuccess) {
-                        viewModel.sendMessage(state.data)
-                    }
-                    if (state.isFailure) {
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                launch {
+                    viewModel.imageMessage.collect { state ->
+                        if (state.isSuccess) {
+                            viewModel.sendMessage(state.data)
+                        }
+                        if (state.isFailure) {
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -71,6 +75,10 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.setReceiverUid(args.userId)
+        viewModel.receiveMessageToRead()
+        viewModel.setOptions()
 
         Glide.with(requireContext())
             .load(args.profileImage)
@@ -93,9 +101,6 @@ class ChatFragment : Fragment() {
 
         binding.messageBox.addTextChangedListener(SendButtonObserver(binding.send))
 
-        viewModel.setReceiverUid(args.userId)
-        viewModel.receiveMessageToRead()
-        viewModel.setOptions()
 
         viewModel.authCurrentUser?.let { my ->
             var options = viewModel.options!!
@@ -115,15 +120,14 @@ class ChatFragment : Fragment() {
         adapter.startListening()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        adapter.stopListening()
-        _binding = null
-    }
-
     override fun onStop() {
         super.onStop()
         viewModel.resetImageMessage()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.removeNewChatLister()
     }
 
     inner class SendButtonObserver(private val sendBtn: ImageView) : TextWatcher {

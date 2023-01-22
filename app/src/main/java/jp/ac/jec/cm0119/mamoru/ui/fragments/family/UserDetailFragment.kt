@@ -51,8 +51,7 @@ class UserDetailFragment : Fragment() {
             NavHostFragment.findNavController(this).navigate(action)
         }
 
-        // TODO: チャット画面に遷移
-        binding.chatBtn.setOnClickListener { 
+        binding.chatBtn.setOnClickListener {
             val action = UserDetailFragmentDirections.actionUserDetailFragmentToChatFragment(userName = user.name!!, userId = user.uid!!, profileImage = user.profileImage)
             NavHostFragment.findNavController(this) .navigate(action)
         }

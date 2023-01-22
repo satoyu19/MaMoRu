@@ -3,7 +3,6 @@ package jp.ac.jec.cm0119.mamoru.ui.fragments.auth
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +20,6 @@ import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentSetupProfileBinding
-import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.viewmodels.auth.SetupProfileViewModel
 import kotlinx.coroutines.launch
 
@@ -98,7 +96,7 @@ class SetupProfileFragment : Fragment() {
 
         //setupボタン
         binding.setupBtn.setOnClickListener {
-            viewModel.setMyState()
+            viewModel.setMyInfo()
         }
 
         binding.name.addTextChangedListener(SetupButtonObserver(binding.setupBtn))

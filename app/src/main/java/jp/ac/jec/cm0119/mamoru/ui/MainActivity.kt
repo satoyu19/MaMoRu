@@ -3,10 +3,8 @@ package jp.ac.jec.cm0119.mamoru.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -50,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                         binding.progressBar2.visibility = View.GONE
                         binding.navHostFragment2.visibility = View.VISIBLE
                         binding.bottomNavigationView.visibility = View.VISIBLE
-                        state.user?.let { viewModel.saveMyState(it) }
+                        state.user?.let { viewModel.saveMyInfo(it) }
                     }
                     if (state.isFailure) {  //databaseにuserの登録がないか、auth登録が済んでいない
                         val intent = Intent(this@MainActivity, LoginActivity::class.java)

@@ -8,6 +8,7 @@ import com.google.firebase.auth.*
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpException
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
+import jp.ac.jec.cm0119.mamoru.models.ChatRoom
 import jp.ac.jec.cm0119.mamoru.models.Message
 import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_CHAT_ROOMS
@@ -36,10 +37,12 @@ class FirebaseRepository @Inject constructor() {
     private var firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
     private var firebaseStorage: FirebaseStorage = FirebaseStorage.getInstance()
 
+    var isNewChatListener: Boolean = false
+
     var currentUser: FirebaseUser? = null
+        private set
 
     init {
-        //ログイン済みであればloggedOutLiveDataをfalse
         if (firebaseAuth.currentUser != null) {
             currentUser = firebaseAuth.currentUser
         }
@@ -50,8 +53,8 @@ class FirebaseRepository @Inject constructor() {
      */
 
     //Auth登録
-    fun register(email: String, password: String) = flow {
-        emit(Response.Loading)
+    fun register(email: String, password: String): Flow<Response<Nothing>> = flow {
+        emit(Response.Loading())
 
         try {
             firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -77,8 +80,8 @@ class FirebaseRepository @Inject constructor() {
 
     //todo: 何度も同じアカウントで失敗するとログインできなくなる。パスワード変更等で処置可能？
     //ログイン
-    fun login(email: String, password: String) = flow {
-        emit(Response.Loading)
+    fun login(email: String, password: String): Flow<Response<FirebaseUser>> = flow {
+        emit(Response.Loading())
 
         try {
             val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
@@ -105,8 +108,8 @@ class FirebaseRepository @Inject constructor() {
     }
 
     //パスワードリセット
-    fun passwordReset(email: String) = flow {
-        emit(Response.Loading)
+    fun passwordReset(email: String): Flow<Response<Nothing>> = flow {
+        emit(Response.Loading())
         try {
             firebaseAuth.sendPasswordResetEmail(email).await()
             emit(Response.Success(data = null))
@@ -131,8 +134,8 @@ class FirebaseRepository @Inject constructor() {
      * FirebaseStorage
      */
     //firebaseStorageに画像アップロード
-    fun addImageToFirebaseStorageProfile(imageUri: Uri) = flow {
-        emit(Response.Loading)
+    fun addImageToFirebaseStorageProfile(imageUri: Uri): Flow<Response<Uri>> = flow {
+        emit(Response.Loading())
         try {
             val currentUserUid = currentUser!!.uid
             // 同じuidの場合更新される
@@ -148,9 +151,9 @@ class FirebaseRepository @Inject constructor() {
         }
     }
 
-    fun addImageToFirebaseStorageMessage(imageUri: Uri) = flow {
+    fun addImageToFirebaseStorageMessage(imageUri: Uri): Flow<Response<Uri>> = flow {
         val imageId = UUID.randomUUID().toString()
-        emit(Response.Loading)
+        emit(Response.Loading())
         try {
 
             val downloadUrl = firebaseStorage.reference.child(MESSAGE_IMAGE)
@@ -171,14 +174,14 @@ class FirebaseRepository @Inject constructor() {
      */
     // TODO: オフライン時のsetValueで止まるところとか,Throwableで処理したらどうなる？
     //ユーザー(自分)情報登録
-    fun setMyStateToDatabase(myState: User) = flow {
-        emit(Response.Loading)
+    fun setMyInfoToDatabase(myInfo: User): Flow<Response<Nothing>> = flow {
+        emit(Response.Loading())
 
         try {
             val currentUserUid = currentUser!!.uid
 
             firebaseDatabase.reference.child(DATABASE_USERS).child(currentUserUid)
-                .setValue(myState).await()
+                .setValue(myInfo).await()
             val snapshot =
                 firebaseDatabase.reference.child(DATABASE_USERS).child(currentUserUid).get()
                     .await()
@@ -194,25 +197,25 @@ class FirebaseRepository @Inject constructor() {
     }
 
     //ユーザー(自分)情報の更新
-    fun updateMyState(newMyState: User) = flow {
-        emit(Response.Loading)
+    fun updateMyInfo(newMyInfo: User): Flow<Response<User>> = flow {
+        emit(Response.Loading())
 
         try {
             val currentUserUid = currentUser!!.uid
             val updateData: DatabaseReference =
                 firebaseDatabase.reference.child(DATABASE_USERS).child(currentUserUid)
 
-            val myStateObj = HashMap<String, Any>()
-            myStateObj["name"] = newMyState.name.toString()
-            myStateObj["birthDay"] = newMyState.birthDay.toString()
-            myStateObj["description"] = newMyState.description.toString()
+            val myInfoObj = HashMap<String, Any>()
+            myInfoObj["name"] = newMyInfo.name.toString()
+            myInfoObj["birthDay"] = newMyInfo.birthDay.toString()
+            myInfoObj["description"] = newMyInfo.description.toString()
 
-            newMyState.profileImage?.let {
-                myStateObj["profileImage"] = newMyState.profileImage.toString()
+            newMyInfo.profileImage?.let {
+                myInfoObj["profileImage"] = newMyInfo.profileImage.toString()
             }
 
-            updateData.updateChildren(myStateObj).await()
-            emit(Response.Success(data = newMyState))
+            updateData.updateChildren(myInfoObj).await()
+            emit(Response.Success(data = newMyInfo))
 
         } catch (e: Exception) {
             emit(Response.Failure("更新に失敗しました。"))
@@ -220,16 +223,16 @@ class FirebaseRepository @Inject constructor() {
     }
 
     //ユーザー情報取得
-    fun getUserData() = flow {
-        emit(Response.Loading)
+    fun getUserData(): Flow<Response<User>> = flow {
+        emit(Response.Loading())
 
         if (currentUser != null) {
             val snapshot =
                 firebaseDatabase.reference.child(DATABASE_USERS).child(currentUser!!.uid).get()
                     .await()
             if (snapshot.exists()) {    //データあり
-                val myState: User? = snapshot.getValue(User::class.java)
-                emit(Response.Success(myState))
+                val myInfo: User? = snapshot.getValue(User::class.java)
+                emit(Response.Success(myInfo))
             } else {   //データなし
                 emit(Response.Failure())
             }
@@ -240,8 +243,8 @@ class FirebaseRepository @Inject constructor() {
 
     // TODO: 自身の場合の処理 
     //ユーザー検索
-    fun searchUser(userUid: String) = flow {
-        emit(Response.Loading)
+    fun searchUser(userUid: String): Flow<Response<User>> = flow {
+        emit(Response.Loading())
         try {
             val snapshot =
                 firebaseDatabase.reference.child(DATABASE_USERS).child(userUid).get().await()
@@ -265,8 +268,8 @@ class FirebaseRepository @Inject constructor() {
     }
 
     //familyユーザー追加
-    fun registerFamily(userUid: String) = flow {
-        emit(Response.Loading)
+    fun registerFamily(userUid: String): Flow<Response<Nothing>> = flow {
+        emit(Response.Loading())
         try {
 
             val currentUserUid = currentUser!!.uid
@@ -332,8 +335,8 @@ class FirebaseRepository @Inject constructor() {
                 if (users?.exists() == true) {    //データあり
                     for (user in users.children) {
                         if (myFamilyUid.contains(user.key)) {
-                            val userState: User? = user.getValue(User::class.java)
-                            userState?.let { myFamily.add(it) }
+                            val userInfo: User? = user.getValue(User::class.java)
+                            userInfo?.let { myFamily.add(it) }
                         }
                     }
                 }
@@ -350,29 +353,33 @@ class FirebaseRepository @Inject constructor() {
         receiverUid: String,
         newMessage: String?,
         imageUri: Uri?,
-    ): Flow<Response.Failure> = flow {
+    ): Flow<Response.Failure<Nothing>> = flow {
 
         try {
-            val receiverRoom = receiverUid + currentUser!!.uid
-            val receiverRoomRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(receiverRoom)
             val senderRoom = currentUser!!.uid + receiverUid
-            val senderRoomRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom)
+            val senderRoomRef =
+                firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(currentUser!!.uid)
+                    .child(senderRoom)
+            val receiverRoom = receiverUid + currentUser!!.uid
+            val receiverRoomRef =
+                firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(receiverUid)
+                    .child(receiverRoom)
 
             val date = Date()
             var lastMsgObj = HashMap<String, Any>()
             val message: Message
 
-            //todo テスト
             if (imageUri != null) { //画像メッセージ
-                message = Message( "photo", currentUser!!.uid, imageUri.toString(), date.time)
+                message = Message("photo", currentUser!!.uid, imageUri.toString(), date.time)
+                lastMsgObj["roomUid"] = senderRoom
                 lastMsgObj["lastMsg"] = "photo"
                 lastMsgObj["time"] = date.time
             } else {    //文字メッセージ
-                message = Message( newMessage, currentUser!!.uid, null, date.time)
+                message = Message(newMessage, currentUser!!.uid, null, date.time)
+                lastMsgObj["roomUid"] = senderRoom
                 lastMsgObj["lastMsg"] = newMessage!!
                 lastMsgObj["time"] = date.time
             }
-
 
             val randomKey = firebaseDatabase.reference.push().key
 
@@ -381,54 +388,160 @@ class FirebaseRepository @Inject constructor() {
             receiverRoomRef.updateChildren(lastMsgObj).await()
             senderRoomRef.updateChildren(lastMsgObj).await()
 
+            val receiverNewChats = receiverRoomRef.child(DATABASE_NEW_CHATS).get().await()
+            var newChatCountObj = HashMap<String, Any>()
+            newChatCountObj["newChatCount"] = receiverNewChats.childrenCount
+            receiverRoomRef.updateChildren(newChatCountObj).await()
+
         } catch (e: Throwable) {
             emit(Response.Failure(errorMessage = "メッセージの送信に失敗しました"))
         }
     }
 
     //新しいメッセージ受信のコールバック
-    fun newReceiveMessageToRead(receiverUid: String): Flow<Response.Failure> = callbackFlow {
-        var newChatRef: DatabaseReference? = null
-        var readChatRef: DatabaseReference? = null
-        try {
-            val senderRoom = currentUser!!.uid + receiverUid
-            //未読ノード
-            newChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom)
-                .child(DATABASE_NEW_CHATS)
-            //既読ずみノード
-            readChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom)
-                .child(DATABASE_READ_CHATS)
+    fun newReceiveMessageToRead(receiverUid: String): Flow<Response.Failure<Nothing>> =
+        callbackFlow {
+            var senderRoomRef: DatabaseReference? = null
+            var newChatRef: DatabaseReference? = null
+            var readChatRef: DatabaseReference? = null
+            isNewChatListener = true
+            try {
+                val senderRoom = currentUser!!.uid + receiverUid
+                senderRoomRef =
+                    firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(currentUser!!.uid)
+                        .child(senderRoom)
+                //未読ノード
+                newChatRef =
+                    senderRoomRef
+                        .child(DATABASE_NEW_CHATS)
+                //既読ずみノード
+                readChatRef =
+                    senderRoomRef
+                        .child(DATABASE_READ_CHATS)
+            } catch (e: Throwable) {
+                trySendBlocking(Response.Failure("メッセージの読み込みに失敗しました。"))
+            }
 
-        } catch (e: Throwable) {
-            close(e)
+            newChatRef?.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshots: DataSnapshot) {
+                    if (isNewChatListener) {
+                        for (snapshot in snapshots.children) {
+                            val nodeId = snapshot.key
+                            val message: Message? = snapshot.getValue(Message::class.java)
+                            readChatRef!!.child(nodeId!!).setValue(message).addOnSuccessListener {
+                                newChatRef.child(nodeId).setValue(null)
+                                var newChatCountObj = HashMap<String, Any>()
+                                newChatCountObj["newChatCount"] = 0
+                                senderRoomRef!!.updateChildren(newChatCountObj)
+                            }
+                        }
+                    } else {
+                        newChatRef.removeEventListener(this)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    trySendBlocking(Response.Failure("メッセージの読み込みに失敗しました。"))
+                }
+            })
+            awaitClose {}
         }
 
-        newChatRef?.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshots: DataSnapshot) {
-                for (snapshot in snapshots.children) {
-                    val nodeId = snapshot.key
-                    val message: Message? = snapshot.getValue(Message::class.java)
-                    readChatRef!!.child(nodeId!!).setValue(message).addOnSuccessListener {
-                        newChatRef.child(nodeId).setValue(null)
+    //既存チャットルーム、新規チャットルーム追加時receiver情報追加
+    fun registerReceiverInfoToSenderRoom(): Flow<Response.Failure<Nothing>> = callbackFlow {
+        var receiverUidArray = mutableListOf<String>()
+        var chatRooms: DatabaseReference? = null
+        try {
+            chatRooms = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(currentUser!!.uid)
+            val chatRoomsSnap = chatRooms.get().await()
+
+            val users = firebaseDatabase.reference.child(DATABASE_USERS).get().await()
+
+            if (chatRoomsSnap.exists()) {
+                for (snapshot in chatRoomsSnap.children) {
+                    val senderRoomUid = snapshot.key.toString()
+                    val receiver = senderRoomUid.removeRange(0, currentUser!!.uid.length)
+                    receiverUidArray.add(receiver)
+                }
+            }
+
+            for (receiverUid in receiverUidArray) {
+                Log.d("Test", receiverUid)
+                for (user in users.children) {
+                    Log.d("Test", user.key.toString())
+                    if (receiverUid == user.key) {
+                        val userInfo: User? = user.getValue(User::class.java)
+                        val receiverInfoObj = HashMap<String, Any>()
+                        if (userInfo != null) {
+                            receiverInfoObj["name"] = userInfo.name!!
+                            receiverInfoObj["receiverUid"] = userInfo.uid!!
+                            userInfo.profileImage?.let {
+                                receiverInfoObj["profileImage"] = it
+                            }
+                        }
+                        chatRooms
+                            .child(currentUser!!.uid + receiverUid)
+                            .updateChildren(receiverInfoObj).await()
                     }
                 }
             }
+        } catch (e: Throwable) {
+            trySendBlocking(Response.Failure(errorMessage = "チャットの取得に失敗しました。"))
+        }
+
+        chatRooms?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshots: DataSnapshot) {
+                firebaseDatabase.reference.child(DATABASE_USERS).get().addOnSuccessListener { users ->
+                    if (snapshots.exists()) {
+                        for (snapshot in snapshots.children) {
+                            val senderRoomUid = snapshot.key.toString()
+                            val receiverUid = senderRoomUid.removeRange(0, currentUser!!.uid.length)
+                            for (user in users.children) {
+                                if (receiverUid == user.key) {
+                                    val userInfo: User? = user.getValue(User::class.java)
+                                    val receiverInfoObj = HashMap<String, Any>()
+                                    if (userInfo != null) {
+                                        receiverInfoObj["name"] = userInfo.name!!
+                                        receiverInfoObj["receiverUid"] = userInfo.uid!!
+                                        userInfo.profileImage?.let {
+                                            receiverInfoObj["profileImage"] = it
+                                        }
+                                        chatRooms
+                                            .child(currentUser!!.uid + receiverUid)
+                                            .updateChildren(receiverInfoObj)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             override fun onCancelled(error: DatabaseError) {
-                trySendBlocking(Response.Failure("メッセージの読み込みに失敗しました。"))
+                trySendBlocking(Response.Failure("チャットの取得に失敗しました。"))
             }
         })
         awaitClose {}
     }
 
-//    fun MessegeRoom
-
-    fun getMessageRoomOptions(receiverUid: String): FirebaseRecyclerOptions<Message> {
+    fun getMessageOptions(receiverUid: String): FirebaseRecyclerOptions<Message> {
         val senderRoom = currentUser!!.uid + receiverUid
-        val readChatRef = firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(senderRoom)
-            .child(DATABASE_READ_CHATS)
+        val readChatRef =
+            firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(currentUser!!.uid)
+                .child(senderRoom)
+                .child(DATABASE_READ_CHATS)
 
         return FirebaseRecyclerOptions.Builder<Message>()
             .setQuery(readChatRef, Message::class.java)
+            .build()
+    }
+
+    fun getChatRoomOptions(): FirebaseRecyclerOptions<ChatRoom> {
+        val chatRooms =
+            firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(currentUser!!.uid)
+
+        return FirebaseRecyclerOptions.Builder<ChatRoom>()
+            .setQuery(chatRooms, ChatRoom::class.java)
             .build()
     }
 }

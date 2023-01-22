@@ -18,6 +18,7 @@ import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.ui.fragments.family.FamilyFragmentDirections
 import jp.ac.jec.cm0119.mamoru.ui.fragments.family.UserDetailFragmentDirections
 
+// TODO: 追加された再描画されるか確認 
 class FamilyAdapter: ListAdapter<User, FamilyAdapter.UserViewHolder>(FamilyCallback()) {
 
     inner class UserViewHolder(val binding: RowFamilyBinding): ViewHolder(binding.root) {

@@ -55,9 +55,9 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
     }
 
 
-    fun setMyState() {
+    fun setMyInfo() {
         makeMyState()
-            firebaseRepo.setMyStateToDatabase(user!!).onEach { response ->
+            firebaseRepo.setMyInfoToDatabase(user!!).onEach { response ->
                 when (response) {
                     is Response.Loading ->
                         _userState.value = DatabaseState(isLoading = true)

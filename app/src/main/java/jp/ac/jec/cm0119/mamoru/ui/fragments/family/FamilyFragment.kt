@@ -44,15 +44,15 @@ class FamilyFragment : Fragment() {
             viewModel.getMyFamily()
         }
 
-            adapter = FamilyAdapter()
-            manager = LinearLayoutManager(requireContext())
-            val dividerItemDecoration = DividerItemDecoration(requireContext(), LinearLayoutManager(requireContext()).orientation)
+        adapter = FamilyAdapter()
+        manager = LinearLayoutManager(requireContext())
+        val dividerItemDecoration = DividerItemDecoration(requireContext(), LinearLayoutManager(requireContext()).orientation)
             binding.familyRecycleView.addItemDecoration(dividerItemDecoration)
+        binding.familyRecycleView.layoutManager = manager
+        binding.familyRecycleView.adapter = adapter
 
         viewModel.myFamily.observe(viewLifecycleOwner) { myFamily ->
             if (myFamily.isNotEmpty()) {
-                binding.familyRecycleView.layoutManager = manager
-                binding.familyRecycleView.adapter = adapter
                 adapter.submitList(myFamily)
             } else {
                 binding.familyRecycleView.visibility = View.INVISIBLE

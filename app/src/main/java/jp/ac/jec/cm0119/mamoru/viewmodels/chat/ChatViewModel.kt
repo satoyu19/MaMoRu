@@ -62,10 +62,6 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
         }
     }
 
-    fun removeNewChatLister() {
-        firebaseRepo.isNewChatListener = false
-    }
-
     fun addImageToStorage(imageUrl: Uri) {
         firebaseRepo.addImageToFirebaseStorageMessage(imageUrl).onEach { response ->
             when (response) {

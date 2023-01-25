@@ -21,8 +21,8 @@ class ChatRoomViewModel @Inject constructor(private val firebaseRepo: FirebaseRe
 
     var options: FirebaseRecyclerOptions<ChatRoom>? = null
 
-    private var _registerReceiverInfoFailure = MutableStateFlow(String())
-    val registerReceiverInfoFailure: StateFlow<String> get() = _registerReceiverInfoFailure
+    private var _registerReceiverInfoFailure = MutableStateFlow(DatabaseState())
+    val registerReceiverInfoFailure: StateFlow<DatabaseState> get() = _registerReceiverInfoFailure
 
     fun setOptions() {
         options = firebaseRepo.getChatRoomOptions()
@@ -31,7 +31,7 @@ class ChatRoomViewModel @Inject constructor(private val firebaseRepo: FirebaseRe
     fun registerReceiverInfoToSenderRoom() {
         firebaseRepo.registerReceiverInfoToSenderRoom().onEach { response ->
             if (response is Response.Failure) {
-                _registerReceiverInfoFailure.value = response.errorMessage
+                _registerReceiverInfoFailure.value = DatabaseState(isFailure = true, error = response.errorMessage)
             }
         }.launchIn(viewModelScope)
     }

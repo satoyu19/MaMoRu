@@ -79,7 +79,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-database-ktx'
-
     //Firebase UI
     implementation 'com.firebaseui:firebase-ui-database:8.0.2'
 
@@ -88,12 +87,16 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
 
     //circleimageview
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
+    //todo Picassoのほうがいいかも。ネットワークからはこっちの方が早いかも。
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
 
+    //beacon
+    implementation 'org.altbeacon:android-beacon-library:2.19.4'
 }

@@ -12,9 +12,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.*
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -55,7 +53,6 @@ class ChatFragment : Fragment() {
 
         /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
-            // TODO　onStopで詳細画面に遷移し、戻る際はonStart()で開始されるため、その間生きているviewModelのimageMessageのデータで実行されてしまう。viewModelのresetImageMessageで解決はしている
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 launch {
                     viewModel.imageMessage.collect { state ->
@@ -110,12 +107,13 @@ class ChatFragment : Fragment() {
             binding.chatRecycleView.adapter = adapter
         }
 
-        viewModel.readReceiveMessageFailure.observe(viewLifecycleOwner) { errorMessage ->
+        viewModel.readReceiveMessageFailure.observe(viewLifecycleOwner, Observer { errorMessage ->
             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
-        }
-        viewModel.sendMessageFailure.observe(viewLifecycleOwner) { errorMessage ->
+        })
+
+        viewModel.sendMessageFailure.observe(viewLifecycleOwner, Observer { errorMessage ->
             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
-        }
+        })
 
         adapter.startListening()
     }
@@ -125,9 +123,10 @@ class ChatFragment : Fragment() {
         viewModel.resetImageMessage()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.removeNewChatLister()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        adapter.stopListening()
+        _binding = null
     }
 
     inner class SendButtonObserver(private val sendBtn: ImageView) : TextWatcher {

@@ -101,7 +101,6 @@ class RegisterFamilyFragment : Fragment() {
         }
 
         binding.userSearch.addTextChangedListener(SearchButtonObserver(binding.searchUserBtn))
-
     }
 
     override fun onDestroyView() {

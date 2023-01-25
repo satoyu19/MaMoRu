@@ -13,11 +13,11 @@ import jp.ac.jec.cm0119.mamoru.databinding.RowChatRoomBinding
 import jp.ac.jec.cm0119.mamoru.models.ChatRoom
 import jp.ac.jec.cm0119.mamoru.ui.fragments.chat.ChatRoomsFragmentDirections
 
-class ChatRoomAdapter (
+class ChatRoomAdapter(
     private val options: FirebaseRecyclerOptions<ChatRoom>
-    ) : FirebaseRecyclerAdapter<ChatRoom, ChatRoomAdapter.ChatUserViewHolder>(options) {
+) : FirebaseRecyclerAdapter<ChatRoom, ChatRoomAdapter.ChatUserViewHolder>(options) {
 
-    inner class ChatUserViewHolder(itemView: View): ViewHolder(itemView) {
+    inner class ChatUserViewHolder(itemView: View) : ViewHolder(itemView) {
         val binding: RowChatRoomBinding = RowChatRoomBinding.bind(itemView)
     }
 
@@ -45,15 +45,25 @@ class ChatRoomAdapter (
                 holder.binding.newMessageCount.visibility = View.INVISIBLE
             }
         }
-        holder.binding.lastMessage.text = chatRoom.lastMsg
+        if (chatRoom.lastMsg == "photo") {
+            holder.binding.lastMessage.text = "写真メッセージ"
+        } else {
+            holder.binding.lastMessage.text = chatRoom.lastMsg
+        }
 
         holder.binding.rowChat.setOnClickListener {
             val receiverUid = chatRoom.receiverUid
             val receiverName = chatRoom.name
             val receiverProfileImage = chatRoom.profileImage
-            val action = ChatRoomsFragmentDirections.actionChatRoomsFragmentToChatFragment(userName = receiverName!!, userId = receiverUid!!, profileImage = receiverProfileImage)
+            val action = ChatRoomsFragmentDirections.actionChatRoomsFragmentToChatFragment(
+                userName = receiverName!!,
+                userId = receiverUid!!,
+                profileImage = receiverProfileImage
+            )
             holder.itemView.findNavController().navigate(action)
         }
     }
 }
+
+
 

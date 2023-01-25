@@ -1,7 +1,6 @@
 package jp.ac.jec.cm0119.mamoru.repository
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
@@ -13,8 +12,8 @@ import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_BIRTHDAY
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_DESCRIPTION
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_MAIL
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_NAME
-import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_PHONENUMBER
-import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_PROFILEIMAGE
+import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_PHONE_NUMBER
+import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_PROFILE_IMAGE
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_UID
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_NAME
 import kotlinx.coroutines.flow.Flow
@@ -31,8 +30,8 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         val myUid = stringPreferencesKey(PREFERENCES_MY_UID)
         val myName = stringPreferencesKey(PREFERENCES_MY_NAME)
         val myMail = stringPreferencesKey(PREFERENCES_MY_MAIL)
-        val myPhoneNumber = stringPreferencesKey(PREFERENCES_MY_PHONENUMBER)
-        val myProfileImage = stringPreferencesKey(PREFERENCES_MY_PROFILEIMAGE)
+        val myPhoneNumber = stringPreferencesKey(PREFERENCES_MY_PHONE_NUMBER)
+        val myProfileImage = stringPreferencesKey(PREFERENCES_MY_PROFILE_IMAGE)
         val myDescription = stringPreferencesKey(PREFERENCES_MY_DESCRIPTION)
         val myBirthDay = stringPreferencesKey(PREFERENCES_MY_BIRTHDAY)
         var myBeacon = booleanPreferencesKey(PREFERENCES_MY_BEACON)
@@ -56,7 +55,6 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
 
     //変更点書き換え
     suspend fun renewalMyInfo(myState: User) {
-        Log.d("Test", "書き換え")
         context.dataStore.edit { preferences ->
             preferences[PreferenceKeys.myName] = myState.name ?: ""
             preferences[PreferenceKeys.myPhoneNumber] = myState.phoneNumber ?: ""

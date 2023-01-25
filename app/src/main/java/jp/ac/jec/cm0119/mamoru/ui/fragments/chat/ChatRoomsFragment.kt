@@ -1,7 +1,6 @@
 package jp.ac.jec.cm0119.mamoru.ui.fragments.chat
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,14 +12,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
-import jp.ac.jec.cm0119.mamoru.R
-import jp.ac.jec.cm0119.mamoru.adapter.ChatAdapter
 import jp.ac.jec.cm0119.mamoru.adapter.ChatRoomAdapter
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentChatRoomsBinding
 import jp.ac.jec.cm0119.mamoru.viewmodels.chat.ChatRoomViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -41,8 +36,10 @@ class ChatRoomsFragment : Fragment() {
         _binding = FragmentChatRoomsBinding.inflate(layoutInflater)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.registerReceiverInfoFailure.collect { errorMessage ->
-                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+                viewModel.registerReceiverInfoFailure.collect { response ->
+                    if (response.isFailure) {
+                        Toast.makeText(requireContext(), response.error, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

@@ -32,4 +32,10 @@
     <string name="not_family">ファミリーが存在しません。\n追加ボタンからユーザーの追加を行ってください。</string>
     <string name="message_hint">メッセージ入力</string>
     <string name="chat_room">チャットルーム</string>
+    <string name="beacon_id_txt">ビーコンID:</string>
+    <string name="distance_txt">距離：</string>
+    <string name="link_beacon_txt">未接続</string>
+    <string name="beacon_txt">付近のビーコン一覧</string>
+    <string name="nothing_permission_txt">ビーコン機能を利用するために権限が許可されていません。\n権限の許可を行なってください</string>
+    <string name="not_beacon">未使用</string>
 </resources>

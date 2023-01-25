@@ -2,6 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+<!--    BLUETOOTH系はBLUETOOTH_SCANだけで大丈夫？android11ではACCESS_COARSE_LOCATION、それ以降はACCESS_FINE_LOCATIONが必要-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <!--    ビーコン対応していない端末でのインストールを防ぐ-->
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -35,6 +47,10 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <service
+            android:name="org.altbeacon.beacon.service.BeaconService"
+            android:foregroundServiceType="location">
+        </service>
     </application>
 
 </manifest>

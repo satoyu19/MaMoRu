@@ -338,7 +338,11 @@ class FirebaseRepository @Inject constructor() {
                 if (users?.exists() == true) {    //データあり
                     for (user in users.children) {
                         if (myFamilyUid.contains(user.key)) {
+                            // TODO: ここでユーザーがちゃんと取得されていない可能性がある 
                             val userInfo: User? = user.getValue(User::class.java)
+                            Log.d("Test", "Test" + userInfo!!.exitBeacon.toString())
+                            Log.d("Test", "Test" + userInfo!!.beacon.toString())
+                            Log.d("Test", "Test" + userInfo!!.updateTime.toString())
                             userInfo?.let { myFamily.add(it) }
                         }
                     }
@@ -538,15 +542,44 @@ class FirebaseRepository @Inject constructor() {
     }
 
     //ビーコン検出時間更新
-    fun updateTimeActionDetected(beaconObj: HashMap<String, Any>) {
-
+    // TODO: flowにしてないが失敗したら通知送って見直す様にさせたい
+    fun updateTimeActionDetected() {
+        val currentTimeMinutes = System.currentTimeMillis() / 1000 / 60
+        var beaconObj = java.util.HashMap<String, Any>()
+        beaconObj["updateTime"] = currentTimeMinutes
         try {
             firebaseDatabase.reference.child(DATABASE_USERS).child(currentUser!!.uid)
                 .updateChildren(beaconObj)
         } catch (e: Throwable) {
             Log.d("Mamoru", e.message.toString())
         }
+    }
 
+    // TODO: flowにしてないが失敗したら通知送って見直す様にさせたい
+    fun updateExitToMyBeacon(isExitBeacon: Boolean) {
+        var beaconObj = java.util.HashMap<String, Any>()
+        beaconObj["exitBeacon"] = isExitBeacon
+        try {
+            firebaseDatabase.reference.child(DATABASE_USERS).child(currentUser!!.uid)
+                .updateChildren(beaconObj)
+        } catch (e: Throwable) {
+            Log.d("Mamoru", e.message.toString())
+        }
+    }
+
+    //エラーだったらあっピリケーションクラスのビーコンIDとかをnullにする
+    fun updateMyBeacon(beaconFlg: Boolean): Flow<Response<Nothing>> = flow {
+        try {
+            var beaconObj = HashMap<String, Any>()
+            val currentTimeMinutes = System.currentTimeMillis() / 1000 / 60
+            beaconObj["beacon"] = beaconFlg
+            beaconObj["updateTime"] =  currentTimeMinutes
+
+            firebaseDatabase.reference.child(DATABASE_USERS).child(currentUser!!.uid).updateChildren(beaconObj).await()
+            emit(Response.Success())
+        } catch (e: Throwable) {
+            emit(Response.Failure(errorMessage = "通信中にエラーが発生しました。"))
+        }
     }
 
     fun getMessageOptions(receiverUid: String): FirebaseRecyclerOptions<Message> {

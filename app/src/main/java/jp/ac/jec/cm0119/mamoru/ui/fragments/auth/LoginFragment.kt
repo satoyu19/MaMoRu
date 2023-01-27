@@ -98,10 +98,10 @@ class LoginFragment : Fragment() {
 
             if (mailInput.isNotBlank() && passwordInput.isNotBlank()) {
                 binding.loginBtn.isEnabled = true
-                binding.loginBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active_btn))
+                binding.loginBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active))
             } else {
                 binding.loginBtn.isEnabled = false
-                binding.loginBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive_btn))
+                binding.loginBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive))
             }
         }
 

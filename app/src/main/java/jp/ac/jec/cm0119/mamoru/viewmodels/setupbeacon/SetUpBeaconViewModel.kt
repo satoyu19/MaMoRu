@@ -9,22 +9,27 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import jp.ac.jec.cm0119.mamoru.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.ac.jec.cm0119.mamoru.MyApplication
-import jp.ac.jec.cm0119.mamoru.repository.DataStoreRepository
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.models.BeaconInfo
-import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.utils.Constants
+import jp.ac.jec.cm0119.mamoru.utils.Response
+import jp.ac.jec.cm0119.mamoru.utils.uistate.BeaconState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.altbeacon.beacon.*
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class SetUpBeaconViewModel @Inject constructor(
     private val firebaseRepo: FirebaseRepository,
-    private val dataStoreRepo: DataStoreRepository,
     application: Application
 ) : AndroidViewModel(application), MonitorNotifier, RangeNotifier {
 
@@ -34,81 +39,116 @@ class SetUpBeaconViewModel @Inject constructor(
     val beacons: LiveData<MutableList<BeaconInfo>>
         get() = _beacons
 
+    private val _isBeacon = MutableStateFlow(BeaconState())
+    val isBeacon: StateFlow<BeaconState> = _isBeacon
+
     fun beaconSetup(intent: Intent) {
-        val channelId = "0"
+        if (!beaconManager.isAnyConsumerBound) {
+            val channelId = "0"
+            Log.d("Test", "beaconSetup")
+            beaconManager = BeaconManager.getInstanceForApplication(getApplication())
+            val builder = NotificationCompat.Builder(getApplication(), channelId)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Beacon検知中")
+                .setContentText("領域監視を実行しています")
 
-        // TODO: 今のままだとフォアグラウンドで実行されていてもまたスタートする、されていたらそのままにしたい。
-            if (!beaconManager.isAnyConsumerBound) {
-                // TODO: applicationクラスにもあるが必要か？ 
-                beaconManager = BeaconManager.getInstanceForApplication(getApplication())
-                val builder = NotificationCompat.Builder(getApplication(), channelId)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("Beacon検知中")
-                    .setContentText("領域監視を実行しています")
-
-                //PendingIntentを作成
-                val pendingIntent =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        PendingIntent.getActivity(
-                            getApplication(),
-                            0,
-                            intent,
-                            PendingIntent.FLAG_IMMUTABLE
-                        )
-                    } else {
-                        null
-                    }
-
-                pendingIntent?.let { intent ->
-                    builder.setContentIntent(intent)
-                } //通知のクリック時の遷移
-
-                beaconManager.apply {
-                    beaconParsers.add(BeaconParser().setBeaconLayout(Constants.IBEACON_FORMAT))
-                    foregroundBetweenScanPeriod = 5000
-                    backgroundBetweenScanPeriod = 5000
-                    backgroundScanPeriod = 1100
-
-                    addMonitorNotifier(this@SetUpBeaconViewModel)
-                    addRangeNotifier(this@SetUpBeaconViewModel)
-
-                    enableForegroundServiceScanning(builder.build(), 456)
-                    setEnableScheduledScanJobs(false)
-
-                    startMonitoring(MyApplication.mRegion)
-                    startRangingBeacons(MyApplication.mRegion)
+            //PendingIntentを作成
+            val pendingIntent =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    PendingIntent.getActivity(
+                        getApplication(),
+                        0,
+                        intent,
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+                } else {
+                    null
                 }
+
+            pendingIntent?.let { intent ->
+                builder.setContentIntent(intent)
+            } //通知のクリック時の遷移
+
+            beaconManager.apply {
+                beaconParsers.add(BeaconParser().setBeaconLayout(Constants.IBEACON_FORMAT))
+                foregroundBetweenScanPeriod = 10000     //フォアグラウンド10秒単位
+                backgroundBetweenScanPeriod = 100000    //バックグラウンド1分単位
+                backgroundScanPeriod = 1100
+
+                addMonitorNotifier(this@SetUpBeaconViewModel)
+                addRangeNotifier(this@SetUpBeaconViewModel)
+
+                enableForegroundServiceScanning(builder.build(), 456)
+                setEnableScheduledScanJobs(false)
+
+//                startMonitoring(MyApplication.mRegion)
+//                startRangingBeacons(MyApplication.mRegion)
+            }
         }
     }
 
-    override fun didEnterRegion(region: Region?) {}
+    fun startBeacon() {
+        if (!beaconManager.isAnyConsumerBound) {
+            Log.d("Test", "startBeacon")
+            beaconManager.startMonitoring(MyApplication.mRegion)
+            beaconManager.startRangingBeacons(MyApplication.mRegion)
+        }
+    }
+
+    fun stopBeacon() {
+        if (beaconManager.isAnyConsumerBound) {
+            Log.d("Test", "stopBeacon")
+            beaconManager.stopMonitoring(MyApplication.mRegion)
+            beaconManager.stopRangingBeacons(MyApplication.mRegion)
+        }
+    }
+
+    private fun updateTimeActionDetected() {
+        firebaseRepo.updateTimeActionDetected()
+    }
+
+    fun updateMyBeacon(beaconFlg: Boolean, newBeaconId: String?) {
+        firebaseRepo.updateMyBeacon(beaconFlg).onEach { response ->
+            when (response) {
+                is Response.Success -> _isBeacon.value =
+                    BeaconState(isSuccess = true, beaconId = newBeaconId)
+                is Response.Failure -> _isBeacon.value =
+                    BeaconState(isSuccess = false, errorMessage = response.errorMessage)
+                else -> {}
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    override fun didEnterRegion(region: Region?) {
+        Log.d("Test", "リージョン内")
+        if (MyApplication.selectedBeaconId != null) {
+            //todo 外出中beconをfalseに変更
+            firebaseRepo.updateExitToMyBeacon(false)
+        }
+    }
 
     override fun didExitRegion(region: Region?) {
-        Log.d("Test", "exit")
+        Log.d("Test", "リージョン外")
+        if (MyApplication.selectedBeaconId != null) {
+            //todo 外出中beconをtrueに変更
+            firebaseRepo.updateExitToMyBeacon(true)
+        }
     }
 
     override fun didDetermineStateForRegion(state: Int, region: Region?) {}
 
+    //todo 他のビーコンがある状態で正常にregionの変更が行われるか
     override fun didRangeBeaconsInRegion(
         beacons: MutableCollection<Beacon>?,
         region: Region?
     ) {
         var detectionBeacons = mutableListOf<BeaconInfo>()
 
-        MyApplication.selectedBeaconId?.let {
-
-        }
         beacons?.forEach { beacon ->
-            if (beacon.id1.toString() == MyApplication.selectedBeaconId){
-                Log.d("Test", "didRangeBeaconsInRegion: ${beacon.distance}")
-                // TODO: firebaseに時間を更新するための処理をしたい
+            if (MyApplication.selectedBeaconId == beacon.id1.toString()) {   //監視対象ビーコンあり
                 val distance = MyApplication.comparisonBeaconDistance(beacon.distance)
                 if (1 < distance) { //1m以上変化
-                    //todo firebaseの時刻更新をする。
-                    val date = Date()
-                    var beaconObj = HashMap<String, Any>()
-                    beaconObj["updateTime"] = date.time
-                    updateTimeActionDetected(beaconObj)
+                    updateTimeActionDetected()
                 }
             }
             val beaconInfo = BeaconInfo(
@@ -118,9 +158,5 @@ class SetUpBeaconViewModel @Inject constructor(
             detectionBeacons.add(beaconInfo)
         }
         _beacons.value = detectionBeacons
-    }
-
-    fun updateTimeActionDetected(beaconObj: HashMap<String, Any>) {
-        firebaseRepo.updateTimeActionDetected(beaconObj)
     }
 }

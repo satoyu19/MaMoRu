@@ -13,9 +13,9 @@ import jp.ac.jec.cm0119.mamoru.databinding.RowFamilyBinding
 import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.ui.fragments.family.FamilyFragmentDirections
 
-class FamilyAdapter: ListAdapter<User, FamilyAdapter.UserViewHolder>(FamilyCallback()) {
+class FamilyAdapter : ListAdapter<User, FamilyAdapter.UserViewHolder>(FamilyCallback()) {
 
-    inner class UserViewHolder(itemView: View): ViewHolder(itemView) {
+    inner class UserViewHolder(itemView: View) : ViewHolder(itemView) {
         val binding: RowFamilyBinding = RowFamilyBinding.bind(itemView)
     }
 
@@ -29,18 +29,34 @@ class FamilyAdapter: ListAdapter<User, FamilyAdapter.UserViewHolder>(FamilyCallb
 
         val user: User = getItem(position)
         Glide.with(holder.binding.userImage.context)
-                .load(user.profileImage)
-                .placeholder(R.drawable.ic_account)
-                .into(holder.binding.userImage)
+            .load(user.profileImage)
+            .placeholder(R.drawable.ic_account)
+            .into(holder.binding.userImage)
 //
-            holder.binding.userName.text = user.name
+        holder.binding.userName.text = user.name
 
-        if (user.)
-        holder.binding.familyRowLayout.setOnClickListener {
-                val action =
-                    FamilyFragmentDirections.actionFamilyFragmentToUserDetailFragment(user)
-                holder.itemView.findNavController().navigate(action)
+        if (user.beacon == true) {
+            if (user.exitBeacon == true) {
+                holder.binding.beaconUseTxt.text = "外出中"
+            } else {
+                val currentTimeMinutes = (System.currentTimeMillis() / 1000 / 60) + 1 //必ず一分ずれがあるため
+                val timeDifference = currentTimeMinutes - user.updateTime!!
+                if (timeDifference >= 60) {
+                    holder.binding.beaconUseTxt.text = "1時間"
+                } else {
+                    holder.binding.beaconUseTxt.text = "${timeDifference}分前"
+                }
             }
+            holder.binding.beaconImage.setImageResource(R.drawable.ic_beacon)
+        } else {
+            holder.binding.beaconImage.setImageResource(R.drawable.ic_permission_off)
+            holder.binding.beaconUseTxt.text = "未使用"
+        }
+        holder.binding.familyRowLayout.setOnClickListener {
+            val action =
+                FamilyFragmentDirections.actionFamilyFragmentToUserDetailFragment(user)
+            holder.itemView.findNavController().navigate(action)
+        }
     }
 }
 

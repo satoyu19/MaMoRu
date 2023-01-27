@@ -65,34 +65,34 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
     }
 
 
-    // TODO: State →　Info変換 
-/** context.dataStore.dataはFlow型であるため、Flowで受け取る,coroutinesのFlowであることに注意　**/
-val readMyInfo: Flow<User> = context.dataStore.data
-    .catch { exception ->
-        if (exception is IOException) {
-            emit(emptyPreferences())
-        } else {
-            throw exception
+    // TODO: State →　Info変換
+    /** context.dataStore.dataはFlow型であるため、Flowで受け取る,coroutinesのFlowであることに注意　**/
+    val readMyInfo: Flow<User> = context.dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
         }
-    }
-    .map { preferences ->
-        val myUid = preferences[PreferenceKeys.myUid] ?: ""
-        val myName = preferences[PreferenceKeys.myName] ?: ""
-        val myMail = preferences[PreferenceKeys.myMail] ?: ""
-        val myPhoneNumber = preferences[PreferenceKeys.myPhoneNumber] ?: ""
-        val myProfileImage = preferences[PreferenceKeys.myProfileImage] ?: ""
-        val myDescription = preferences[PreferenceKeys.myDescription] ?: ""
-        val myBirthDay = preferences[PreferenceKeys.myBirthDay] ?: ""
-        val myBeacon = preferences[PreferenceKeys.myBeacon] ?: false
-        User(
-            myUid,
-            myName,
-            myMail,
-            myPhoneNumber,
-            myProfileImage,
-            myDescription,
-            myBirthDay,
-            myBeacon
-        )
-    }
+        .map { preferences ->
+            val myUid = preferences[PreferenceKeys.myUid] ?: ""
+            val myName = preferences[PreferenceKeys.myName] ?: ""
+            val myMail = preferences[PreferenceKeys.myMail] ?: ""
+            val myPhoneNumber = preferences[PreferenceKeys.myPhoneNumber] ?: ""
+            val myProfileImage = preferences[PreferenceKeys.myProfileImage] ?: ""
+            val myDescription = preferences[PreferenceKeys.myDescription] ?: ""
+            val myBirthDay = preferences[PreferenceKeys.myBirthDay] ?: ""
+            val myBeacon = preferences[PreferenceKeys.myBeacon] ?: false
+            User(
+                myUid,
+                myName,
+                myMail,
+                myPhoneNumber,
+                myProfileImage,
+                myDescription,
+                myBirthDay,
+                myBeacon
+            )
+        }
 }

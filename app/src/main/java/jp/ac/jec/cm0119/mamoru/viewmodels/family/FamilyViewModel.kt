@@ -30,7 +30,7 @@ class FamilyViewModel @Inject constructor(private val firebaseRepo: FirebaseRepo
 
     fun getMyFamily() {
         firebaseRepo.getMyFamily().onEach { response ->
-            if (response.javaClass == Response.Success::class.java) {
+            if (response is Response.Success) {
                 _myFamily.value = response.data!!
             }
         }.launchIn(viewModelScope)

@@ -14,8 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterFamilyViewModel @Inject constructor(
-    private val firebaseRepo: FirebaseRepository,
-    private val dataStoreRepo: DataStoreRepository
+    private val firebaseRepo: FirebaseRepository
 ) :
     ViewModel() {
 
@@ -29,12 +28,10 @@ class RegisterFamilyViewModel @Inject constructor(
 
     private var searchUserUid: String? = null
 
-    val readMyUser: Flow<User> = dataStoreRepo.readMyInfo
-
     fun searchUser() {
         userUid.get()?.let { userId ->
             // TODO: it
-            firebaseRepo.searchUser("0s5IOSlcVAOeX3XQ3rnraqc6vB52").onEach { response ->
+            firebaseRepo.searchUser("CNMolf64wrPGt6LtgPyoWAjV9Rw2").onEach { response ->
                 when (response) {
                     is Response.Loading -> _searchUser.value = DatabaseState(isLoading = true)
                     is Response.Success -> _searchUser.value =

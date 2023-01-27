@@ -96,7 +96,7 @@ class PasswordResetFragment : Fragment() {
                 binding.resetBtn.setBackgroundColor(
                     ContextCompat.getColor(
                         requireContext(),
-                        R.color.active_btn
+                        R.color.active
                     )
                 )
             } else {
@@ -104,7 +104,7 @@ class PasswordResetFragment : Fragment() {
                 binding.resetBtn.setBackgroundColor(
                     ContextCompat.getColor(
                         requireContext(),
-                        R.color.inactive_btn
+                        R.color.inactive
                     )
                 )
             }

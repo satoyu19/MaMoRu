@@ -40,14 +40,18 @@ class FamilyFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // TODO: 上部のスクロールを検知したらgetMyFamilyを呼び出してsubmitする
         if (viewModel.authCurrentUser != null) {
             viewModel.getMyFamily()
         }
 
         adapter = FamilyAdapter()
         manager = LinearLayoutManager(requireContext())
-        val dividerItemDecoration = DividerItemDecoration(requireContext(), LinearLayoutManager(requireContext()).orientation)
-            binding.familyRecycleView.addItemDecoration(dividerItemDecoration)
+        val dividerItemDecoration = DividerItemDecoration(
+            requireContext(),
+            LinearLayoutManager(requireContext()).orientation
+        )
+        binding.familyRecycleView.addItemDecoration(dividerItemDecoration)
         binding.familyRecycleView.layoutManager = manager
         binding.familyRecycleView.adapter = adapter
 

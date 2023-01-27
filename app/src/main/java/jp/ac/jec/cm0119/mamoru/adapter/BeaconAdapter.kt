@@ -10,21 +10,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ListAdapter
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import jp.ac.jec.cm0119.mamoru.MyApplication
 import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.databinding.RowBeaconBinding
-import jp.ac.jec.cm0119.mamoru.databinding.RowFamilyBinding
 import jp.ac.jec.cm0119.mamoru.models.BeaconInfo
-import jp.ac.jec.cm0119.mamoru.models.User
-import jp.ac.jec.cm0119.mamoru.ui.fragments.CompleteResetDialog
-import jp.ac.jec.cm0119.mamoru.ui.fragments.family.FamilyFragmentDirections
+import jp.ac.jec.cm0119.mamoru.viewmodels.setupbeacon.SetUpBeaconViewModel
 
 
-class BeaconAdapter(private val childFragmentMng: FragmentManager) :
+class BeaconAdapter(
+    private val childFragmentMng: FragmentManager,
+    private val viewModel: SetUpBeaconViewModel
+) :
     ListAdapter<BeaconInfo, BeaconAdapter.BeaconViewHolder>(BeaconCallBack()) {
 
     inner class BeaconViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -50,19 +48,18 @@ class BeaconAdapter(private val childFragmentMng: FragmentManager) :
             holder.binding.linkBeacon.text = "未接続"
         }
         holder.binding.beaconRowLayout.setOnClickListener {
-            if (beacon.uuid == MyApplication.selectedBeaconId) {
+            if (beacon.uuid == MyApplication.selectedBeaconId) {    //ビーコン解除
                 showDialog(null)
-            } else {
+            } else {    //ビーコン更新
                 showDialog(beacon.uuid)
             }
         }
     }
 
     private fun showDialog(beaconId: String? = null) {
-        val newFragment = SelectResetDialog(beaconId)
+        val newFragment = SelectResetDialog(beaconId, viewModel)
         newFragment.show(childFragmentMng, "reset")
     }
-
 }
 
 class BeaconCallBack : DiffUtil.ItemCallback<BeaconInfo>() {
@@ -76,22 +73,23 @@ class BeaconCallBack : DiffUtil.ItemCallback<BeaconInfo>() {
     }
 }
 
-//todo https://developer.android.com/guide/topics/ui/dialogs?hl=ja 別の書き方にする？
-class SelectResetDialog(private val selectedBeaconUid: String? = null) : DialogFragment() {
+class SelectResetDialog(
+    private val selectedBeaconUid: String? = null,
+    private val viewModel: SetUpBeaconViewModel
+) : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             var builder: AlertDialog.Builder?
-            if (selectedBeaconUid != null) {
+            if (selectedBeaconUid != null) {    //更新
                 builder = AlertDialog.Builder(it)
                 builder.setTitle("選択したビーコンで開始しますか？")
                     .setMessage("このビーコンを利用して自身の行動を他のユーザーに知らせることができます。")
                     .setPositiveButton("はい",
                         DialogInterface.OnClickListener { _, _ ->
-                            MyApplication.updateSelectedBeacon(selectedBeaconUid)
+                            viewModel.updateMyBeacon(true, selectedBeaconUid)
                         })
                     .setNegativeButton("いいえ", DialogInterface.OnClickListener { _, _ ->
-
                     })
             } else {
                 builder = AlertDialog.Builder(it)
@@ -99,10 +97,9 @@ class SelectResetDialog(private val selectedBeaconUid: String? = null) : DialogF
                     .setMessage("このビーコンを使った機能を停止します。")
                     .setPositiveButton("はい",
                         DialogInterface.OnClickListener { _, _ ->
-                            MyApplication.updateSelectedBeacon(null)
+                            viewModel.updateMyBeacon(false, null)
                         })
                     .setNegativeButton("いいえ", DialogInterface.OnClickListener { _, _ ->
-
                     })
             }
 

@@ -62,7 +62,7 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
                     is Response.Loading ->
                         _userState.value = DatabaseState(isLoading = true)
                     is Response.Failure ->
-                        _userState.value = DatabaseState(error = response.errorMessage)
+                        _userState.value = DatabaseState(isFailure = true, error = response.errorMessage)
                     is Response.Success -> {
 
                         _userState.value = DatabaseState(isSuccess = true)
@@ -94,7 +94,8 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
             profileImage = profileImageUrl,
             description = description.get(),
             birthDay = birthDay.get(),
-            beacon = false
+            beacon = false,
+            exitBeacon = false
         )
     }
 }

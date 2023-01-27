@@ -1,7 +1,6 @@
 package jp.ac.jec.cm0119.mamoru.ui.fragments.setupbeacon
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -13,17 +12,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import jp.ac.jec.cm0119.mamoru.R
+import jp.ac.jec.cm0119.mamoru.MyApplication
 import jp.ac.jec.cm0119.mamoru.adapter.BeaconAdapter
-import jp.ac.jec.cm0119.mamoru.adapter.ChatRoomAdapter
-import jp.ac.jec.cm0119.mamoru.adapter.FamilyAdapter
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentSetupBeaconBinding
 import jp.ac.jec.cm0119.mamoru.ui.MainActivity
 import jp.ac.jec.cm0119.mamoru.viewmodels.setupbeacon.SetUpBeaconViewModel
-import java.util.*
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SetupBeaconFragment : Fragment() {
@@ -49,22 +48,33 @@ class SetupBeaconFragment : Fragment() {
     ): View? {
         _binding = FragmentSetupBeaconBinding.inflate(layoutInflater)
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
+                viewModel.isBeacon.collect { state ->
+                    if (state.isSuccess == true) {   //更新成功
+                        MyApplication.updateSelectedBeacon(state.beaconId)
+                        MyApplication.updateRegion()
+                        viewModel.stopBeacon()
+                        viewModel.startBeacon()
+                    }
+                    if (state.isSuccess == false){
+                        Toast.makeText(requireContext(), state.errorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val intent = Intent(requireContext(), MainActivity::class.java)
-        viewModel.beaconSetup(intent)
-
-        adapter = BeaconAdapter(childFragmentManager)
+        requestPermission()
+        adapter = BeaconAdapter(childFragmentManager, viewModel)
         manager = LinearLayoutManager(requireContext())
         binding.beaconRecycleView.layoutManager = manager
         binding.beaconRecycleView.adapter = adapter
 
         viewModel.beacons.observe(viewLifecycleOwner) { beacon ->
-            Log.d("Test", "onViewCreated: ")
             if (beacon.isNotEmpty()) {
                 adapter.submitList(beacon)
             }
@@ -73,8 +83,10 @@ class SetupBeaconFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        requestPermission()
         if (isBeaconFeature) {
+            val intent = Intent(requireContext(), MainActivity::class.java)
+            viewModel.beaconSetup(intent)
+            viewModel.startBeacon()
             binding.nothingPermissionLayout.visibility = View.INVISIBLE
             binding.beaconRecycleView.visibility = View.VISIBLE
             binding.beaconTitle.visibility = View.VISIBLE
@@ -82,9 +94,7 @@ class SetupBeaconFragment : Fragment() {
             binding.nothingPermissionLayout.visibility = View.VISIBLE
             binding.beaconRecycleView.visibility = View.INVISIBLE
             binding.beaconTitle.visibility = View.INVISIBLE
-            var beaconObj = HashMap<String, Any>()
-            beaconObj["updateTime"] = ""
-            viewModel.updateTimeActionDetected(beaconObj)
+            viewModel.updateMyBeacon(false, null)
         }
     }
 
@@ -98,10 +108,12 @@ class SetupBeaconFragment : Fragment() {
         //permission(権限名), isGrant(有効 or 無効)
         result.forEach { (permission, isGrant) ->
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {    //SDKバージョンが31(Android12)以下の場合
-               when (permission) {
-                   Manifest.permission.ACCESS_FINE_LOCATION -> if (!isGrant) isBeaconFeature = false
-                   Manifest.permission.ACCESS_COARSE_LOCATION -> if (!isGrant) isBeaconFeature = false
-               }
+                when (permission) {
+                    Manifest.permission.ACCESS_FINE_LOCATION -> if (!isGrant) isBeaconFeature =
+                        false
+                    Manifest.permission.ACCESS_COARSE_LOCATION -> if (!isGrant) isBeaconFeature =
+                        false
+                }
             } else {    //SDKバージョンが31(Android12)以上ではBLUETOOTH周りの権限が必要
                 if (!isGrant) {
                     isBeaconFeature = false

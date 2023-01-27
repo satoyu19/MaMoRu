@@ -21,7 +21,6 @@ import jp.ac.jec.cm0119.mamoru.databinding.FragmentRegisterFamilyBinding
 import jp.ac.jec.cm0119.mamoru.viewmodels.family.RegisterFamilyViewModel
 import kotlinx.coroutines.launch
 
-// TODO: firebaseRepoに登録するメソッド(ユーザーカードの追加ボタンで動作(currentuser.uidの配下にfamilyを作成、そこに追加))、ユーザー検索メソッド(edit入力後呼び出し)追加。
 @AndroidEntryPoint
 class RegisterFamilyFragment : Fragment() {
 

@@ -55,7 +55,7 @@ class SetupProfileFragment : Fragment() {
                                 .placeholder(R.drawable.ic_account)
                                 .into(binding.profileImage)
                         }
-                        if (state.isSuccess) {
+                        if (state.isFailure) {
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -70,7 +70,7 @@ class SetupProfileFragment : Fragment() {
                             val action = SetupProfileFragmentDirections.actionSetupProfileFragmentToMainActivity()
                             NavHostFragment.findNavController(this@SetupProfileFragment).navigate(action)
                         }
-                        if (state.error.isNotBlank()) {
+                        if (state.isFailure) {
                             binding.progressBar3.visibility = View.INVISIBLE
                             binding.setupLayout.visibility = View.VISIBLE
                         }
@@ -113,10 +113,10 @@ class SetupProfileFragment : Fragment() {
             setupBtn.isEnabled = charSequence.toString().trim().isNotEmpty()
             if (charSequence.toString().trim().isNotEmpty()) {
                 binding.setupBtn.isEnabled = true
-                binding.setupBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active_btn))
+                binding.setupBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active))
             } else {
                 binding.setupBtn.isEnabled = false
-                binding.setupBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive_btn))
+                binding.setupBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive))
             }
         }
 

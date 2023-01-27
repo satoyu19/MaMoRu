@@ -90,10 +90,10 @@ class RegisterFragment : Fragment() {
 
             if (mailInput.isNotBlank() && passwordInput.isNotBlank()) {
                 binding.registerBtn.isEnabled = true
-                binding.registerBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active_btn))
+                binding.registerBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active))
             } else {
                 binding.registerBtn.isEnabled = false
-                binding.registerBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive_btn))
+                binding.registerBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive))
             }
         }
 

@@ -101,4 +101,25 @@
         app:layout_constraintStart_toStartOf="@+id/family_user_name"
         app:layout_constraintTop_toBottomOf="@+id/family_user_name" />
 
+    <ImageView
+        android:id="@+id/beacon_Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:src="@drawable/ic_beacon"
+        app:layout_constraintBottom_toBottomOf="@+id/beacon_time"
+        app:layout_constraintEnd_toStartOf="@+id/beacon_time"
+        app:layout_constraintTop_toTopOf="@+id/beacon_time"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/beacon_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        tools:text="1時間以上前に行動を検知"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/family_description" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

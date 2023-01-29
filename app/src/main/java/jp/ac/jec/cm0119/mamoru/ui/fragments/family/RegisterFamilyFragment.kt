@@ -41,10 +41,10 @@ class RegisterFamilyFragment : Fragment() {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.searchUser.collect { state ->
-                        if (state.isLoading) {
+                        if (state?.isLoading == true) {
                             binding.progressBar6.visibility = View.VISIBLE
                         }
-                        if (state.isSuccess) {   //成功
+                        if (state?.isSuccess == true) {   //成功
                             binding.userCardView.visibility = View.VISIBLE
                             binding.progressBar6.visibility = View.INVISIBLE
                             binding.userName.text = state.user!!.name
@@ -54,7 +54,7 @@ class RegisterFamilyFragment : Fragment() {
                                 .placeholder(R.drawable.ic_account)
                                 .into(binding.userImage)
                         }
-                        if (state.isFailure) {
+                        if (state?.isFailure == true) {
                             binding.userCardView.visibility = View.INVISIBLE
                             binding.progressBar6.visibility = View.INVISIBLE
                             Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
@@ -63,14 +63,14 @@ class RegisterFamilyFragment : Fragment() {
                 }
                 launch {
                     viewModel.registerUser.collect { state ->
-                        if (state.isLoading) {
+                        if (state?.isLoading == true) {
                             binding.progressBar6.visibility = View.VISIBLE
                         }
-                        if (state.isSuccess) {
+                        if (state?.isSuccess == true) {
                             binding.progressBar6.visibility = View.INVISIBLE
                             Toast.makeText(context, "ファミリーに追加しました。", Toast.LENGTH_SHORT).show()
                         }
-                        if (state.isFailure) {
+                        if (state?.isFailure == true) {
                             binding.progressBar6.visibility = View.INVISIBLE
                             Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()
                         }

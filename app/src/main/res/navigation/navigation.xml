@@ -50,7 +50,7 @@
     </fragment>
     <fragment
         android:id="@+id/passwordResetFragment"
-        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.PasswordResetFragment"
+        android:name="jp.ac.jec.cm0119.mamoru.ui.fragments.auth.PasswordResetFragment"
         android:label="PasswordResetFragment"
         tools:layout="@layout/fragment_password_reset">
         <action

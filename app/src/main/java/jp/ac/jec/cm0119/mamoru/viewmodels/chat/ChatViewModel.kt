@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.ac.jec.cm0119.mamoru.models.Message
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.Response
+import jp.ac.jec.cm0119.mamoru.utils.set
 import jp.ac.jec.cm0119.mamoru.utils.uistate.StorageState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,8 +39,8 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
     private var _readReceiveMessageFailure = MutableLiveData<String>()
     val readReceiveMessageFailure: LiveData<String> get() = _readReceiveMessageFailure
 
-    private var _imageMessage = MutableStateFlow(StorageState())
-    val imageMessage: StateFlow<StorageState> = _imageMessage
+    private var _imageMessage = MutableStateFlow<StorageState?>(null)
+    val imageMessage: StateFlow<StorageState?> = _imageMessage
 
     fun setOptions() {
         options = receiverUid?.let { firebaseRepo.getMessageOptions(it) }
@@ -65,21 +66,14 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
     fun addImageToStorage(imageUrl: Uri) {
         firebaseRepo.addImageToFirebaseStorageMessage(imageUrl).onEach { response ->
             when (response) {
-                is Response.Loading -> _imageMessage.value = StorageState(isLoading = true)
-                is Response.Success -> {
-                    _imageMessage.value = StorageState(isSuccess = true, data = response.data)
-                    Log.d("onCreateView", "addImageToStorage: ${response.data}")
-                }
-                is Response.Failure -> _imageMessage.value = StorageState(isFailure = true,error = response.errorMessage)
+                is Response.Success -> _imageMessage.set(StorageState(isSuccess = true, data = response.data))
+                is Response.Failure -> _imageMessage.set(StorageState(isFailure = true,error = response.errorMessage))
+                else -> {}
             }
         }.launchIn(viewModelScope)
     }
 
     fun setReceiverUid(receiverUid: String) {
         this.receiverUid = receiverUid
-    }
-
-    fun resetImageMessage() {
-        _imageMessage.value = StorageState()
     }
 }

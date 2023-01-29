@@ -40,14 +40,14 @@ class RegisterFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 viewModel.user.collect { state ->
-                    if (state.isLoading) {
+                    if (state?.isLoading == true) {
                         binding.progressBar.visibility = View.VISIBLE
                         binding.registerLayout.visibility = View.INVISIBLE
                     }
-                    if (state.isSuccess) {   //成功
+                    if (state?.isSuccess == true) {   //成功
                         gotoSetupProfileFragment()
                     }
-                    if (state.isFailure) {
+                    if (state?.isFailure == true) {
                         binding.progressBar.visibility = View.INVISIBLE
                         binding.registerLayout.visibility = View.VISIBLE
                         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()

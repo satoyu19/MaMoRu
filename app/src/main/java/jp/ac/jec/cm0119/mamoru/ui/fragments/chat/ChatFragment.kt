@@ -53,15 +53,13 @@ class ChatFragment : Fragment() {
 
         /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                launch {
-                    viewModel.imageMessage.collect { state ->
-                        if (state.isSuccess) {
-                            viewModel.sendMessage(state.data)
-                        }
-                        if (state.isFailure) {
-                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-                        }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.imageMessage.collect { state ->
+                    if (state?.isSuccess == true) {
+                        viewModel.sendMessage(state.data)
+                    }
+                    if (state?.isFailure == true) {
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -116,11 +114,6 @@ class ChatFragment : Fragment() {
         })
 
         adapter.startListening()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.resetImageMessage()
     }
 
     override fun onDestroyView() {

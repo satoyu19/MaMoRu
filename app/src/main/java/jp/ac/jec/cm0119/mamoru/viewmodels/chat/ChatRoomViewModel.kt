@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.ac.jec.cm0119.mamoru.models.ChatRoom
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.Response
+import jp.ac.jec.cm0119.mamoru.utils.set
 import jp.ac.jec.cm0119.mamoru.utils.uistate.DatabaseState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,8 +22,8 @@ class ChatRoomViewModel @Inject constructor(private val firebaseRepo: FirebaseRe
 
     var options: FirebaseRecyclerOptions<ChatRoom>? = null
 
-    private var _registerReceiverInfoFailure = MutableStateFlow(DatabaseState())
-    val registerReceiverInfoFailure: StateFlow<DatabaseState> get() = _registerReceiverInfoFailure
+    private var _registerReceiverInfoFailure = MutableStateFlow<DatabaseState?>(null)
+    val registerReceiverInfoFailure: StateFlow<DatabaseState?> = _registerReceiverInfoFailure
 
     fun setOptions() {
         options = firebaseRepo.getChatRoomOptions()
@@ -31,7 +32,7 @@ class ChatRoomViewModel @Inject constructor(private val firebaseRepo: FirebaseRe
     fun registerReceiverInfoToSenderRoom() {
         firebaseRepo.registerReceiverInfoToSenderRoom().onEach { response ->
             if (response is Response.Failure) {
-                _registerReceiverInfoFailure.value = DatabaseState(isFailure = true, error = response.errorMessage)
+                _registerReceiverInfoFailure.set(DatabaseState(isFailure = true, error = response.errorMessage))
             }
         }.launchIn(viewModelScope)
     }

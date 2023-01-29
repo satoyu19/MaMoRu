@@ -11,6 +11,7 @@ import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.uistate.StorageState
 import jp.ac.jec.cm0119.mamoru.utils.Response
+import jp.ac.jec.cm0119.mamoru.utils.set
 import jp.ac.jec.cm0119.mamoru.utils.uistate.DatabaseState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,11 +28,11 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
     var phoneNumber = ObservableField<String>()
     var birthDay = ObservableField<String>()
 
-    private var _profileImageData = MutableStateFlow(StorageState())
-    val profileImageData: StateFlow<StorageState> = _profileImageData
+    private var _profileImageData = MutableStateFlow<StorageState?>(null)
+    val profileImageData: StateFlow<StorageState?> = _profileImageData
 
-    private var _userState = MutableStateFlow(DatabaseState())
-    val userState: StateFlow<DatabaseState> = _userState
+    private var _userState = MutableStateFlow<DatabaseState?>(null)
+    val userState: StateFlow<DatabaseState?> = _userState
 
     //storageのプロフィールイメージにアクセスするUrl
     private var profileImageUrl: String? = null
@@ -44,11 +45,10 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
             firebaseRepo.addImageToFirebaseStorageProfile(imageUrl).onEach { response ->
                 when (response) {
                     is Response.Success -> {
-                        _profileImageData.value = StorageState(isSuccess = true, data = response.data)
+                        _profileImageData.set(StorageState(isSuccess = true, data = response.data))
                         profileImageUrl = response.data.toString()
                     }
-                    is Response.Failure ->
-                        _profileImageData.value = StorageState(isFailure = true, error = response.errorMessage)
+                    is Response.Failure -> _profileImageData.set(StorageState(isFailure = true, error = response.errorMessage))
                     else -> {}
                 }
             }.launchIn(viewModelScope)
@@ -60,13 +60,11 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
             firebaseRepo.setMyInfoToDatabase(user!!).onEach { response ->
                 when (response) {
                     is Response.Loading ->
-                        _userState.value = DatabaseState(isLoading = true)
+                        _userState.set(DatabaseState(isLoading = true))
+                    is Response.Success ->
+                        _userState.set(DatabaseState(isSuccess = true))
                     is Response.Failure ->
-                        _userState.value = DatabaseState(isFailure = true, error = response.errorMessage)
-                    is Response.Success -> {
-
-                        _userState.value = DatabaseState(isSuccess = true)
-                    }
+                        _userState.set(DatabaseState(isFailure = true, error = response.errorMessage))
                 }
             }.launchIn(viewModelScope)
     }

@@ -44,14 +44,14 @@ class LoginFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.verification.collect { State ->
-                    if (State.isLoading) {
+                    if (State?.isLoading == true) {
                         binding.progressBar4.visibility = View.VISIBLE
                         binding.loginLayout.visibility = View.INVISIBLE
                     }
-                    if (State.isSuccess) {
+                    if (State?.isSuccess == true) {
                         gotoMainActivity()
                     }
-                    if (State.isFailure) {
+                    if (State?.isFailure == true) {
                         binding.progressBar4.visibility = View.INVISIBLE
                         binding.loginLayout.visibility = View.VISIBLE
                         Toast.makeText(context, State.error, Toast.LENGTH_SHORT).show()

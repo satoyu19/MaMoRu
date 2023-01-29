@@ -1,4 +1,4 @@
-package jp.ac.jec.cm0119.mamoru.ui.fragments
+package jp.ac.jec.cm0119.mamoru.ui.fragments.auth
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -46,15 +46,15 @@ class PasswordResetFragment : Fragment() {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 viewModel.resetResult.collect { state ->
-                    if (state.isLoading) {
+                    if (state?.isLoading == true) {
                         binding.progressBar5.visibility = View.VISIBLE
                         binding.passwordResetLayout.visibility = View.INVISIBLE
                     }
-                    if (state.isSuccess) {   //成功
+                    if (state?.isSuccess == true) {   //成功
                         showDialog()
                         gotoLoginFragment()
                     }
-                    if (state.isFailure) {
+                    if (state?.isFailure == true) {
                         binding.progressBar5.visibility = View.INVISIBLE
                         binding.passwordResetLayout.visibility = View.VISIBLE
                         Toast.makeText(context, state.error, Toast.LENGTH_SHORT).show()

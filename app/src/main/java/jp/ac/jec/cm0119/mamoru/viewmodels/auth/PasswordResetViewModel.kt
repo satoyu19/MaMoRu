@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.Response
+import jp.ac.jec.cm0119.mamoru.utils.set
 import jp.ac.jec.cm0119.mamoru.utils.uistate.AuthState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,24 +20,16 @@ class PasswordResetViewModel @Inject constructor(private val firebaseRepo: Fireb
 
     var mailAddress = ObservableField<String>()
 
-    private val _resetResult = MutableStateFlow(AuthState())
-    val resetResult: StateFlow<AuthState> = _resetResult
+    private val _resetResult = MutableStateFlow<AuthState?>(null)
+    val resetResult: StateFlow<AuthState?> = _resetResult
 
     fun passwordReset() {
-        Log.d("Test", "passwordReset")
         mailAddress.get()?.let {
-            Log.d("Test", "passwordReset2")
             firebaseRepo.passwordReset(it).onEach { response ->
                 when (response) {
-                    is Response.Loading -> {
-                        _resetResult.value = AuthState(isLoading = true)
-                    }
-                    is Response.Failure -> {
-                        _resetResult.value = AuthState(error = response.errorMessage, isFailure = true)
-                    }
-                    is Response.Success -> {
-                        _resetResult.value = AuthState(isSuccess = true)
-                    }
+                    is Response.Loading -> _resetResult.set(AuthState(isLoading = true))
+                    is Response.Success -> _resetResult.set(AuthState(isSuccess = true))
+                    is Response.Failure -> _resetResult.set(AuthState(error = response.errorMessage, isFailure = true))
                 }
             }.launchIn(viewModelScope)
         }

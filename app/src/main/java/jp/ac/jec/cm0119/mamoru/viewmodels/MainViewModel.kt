@@ -14,10 +14,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val firebaseRepo: FirebaseRepository, private val dataStoreRepo: DataStoreRepository): ViewModel() {
+class MainViewModel @Inject constructor(
+    private val firebaseRepo: FirebaseRepository,
+    private val dataStoreRepo: DataStoreRepository
+) : ViewModel() {
 
     private val _userState = MutableStateFlow(DatabaseState())
     val userState: StateFlow<DatabaseState> = _userState
+
+    private var _allNewChatCount = MutableStateFlow(DatabaseState())
+    val allNewChatCount: StateFlow<DatabaseState> = _allNewChatCount
 
     fun getUserData() {
         firebaseRepo.getUserData().onEach { response ->
@@ -35,7 +41,22 @@ class MainViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
         }.launchIn(viewModelScope)
     }
 
-    fun saveMyInfo(myInfo: User){
+    fun getAllNewChatCount() {
+        if (firebaseRepo.currentUser != null) {
+            firebaseRepo.getAllNewChatCount().onEach { response ->
+                if (response is Response.Success) {
+                    _allNewChatCount.value =
+                        DatabaseState(isSuccess = true, allNewChatCount = response.data)
+                }
+                if (response is Response.Failure) {
+                    _allNewChatCount.value =
+                        DatabaseState(isFailure = true, error = response.errorMessage)
+                }
+            }.launchIn(viewModelScope)
+        }
+    }
+
+    fun saveMyInfo(myInfo: User) {
         viewModelScope.launch(Dispatchers.IO) {
             dataStoreRepo.saveMyInfo(myInfo)
         }

@@ -8,6 +8,7 @@ import jp.ac.jec.cm0119.mamoru.models.User
 import jp.ac.jec.cm0119.mamoru.repository.DataStoreRepository
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.Response
+import jp.ac.jec.cm0119.mamoru.utils.set
 import jp.ac.jec.cm0119.mamoru.utils.uistate.DatabaseState
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -20,24 +21,22 @@ class RegisterFamilyViewModel @Inject constructor(
 
     var userUid = ObservableField<String>()
 
-    private val _searchUser = MutableStateFlow(DatabaseState())
-    val searchUser: StateFlow<DatabaseState> = _searchUser
+    private val _searchUser = MutableStateFlow<DatabaseState?>(null)
+    val searchUser: StateFlow<DatabaseState?> = _searchUser
 
-    private val _registerUser = MutableStateFlow(DatabaseState())
-    val registerUser: StateFlow<DatabaseState> = _registerUser
+    private val _registerUser = MutableStateFlow<DatabaseState?>(null)
+    val registerUser: StateFlow<DatabaseState?> = _registerUser
 
     private var searchUserUid: String? = null
 
     fun searchUser() {
         userUid.get()?.let { userId ->
             // TODO: it
-            firebaseRepo.searchUser("CNMolf64wrPGt6LtgPyoWAjV9Rw2").onEach { response ->
+            firebaseRepo.searchUser("HoqZMi1Y3wOTsaTfyB3V1T2aseh2").onEach { response ->
                 when (response) {
-                    is Response.Loading -> _searchUser.value = DatabaseState(isLoading = true)
-                    is Response.Success -> _searchUser.value =
-                        DatabaseState(isSuccess = true, user = response.data)
-                    is Response.Failure -> _searchUser.value =
-                        DatabaseState(isFailure = true, error = response.errorMessage)
+                    is Response.Loading -> _searchUser.set(DatabaseState(isLoading = true))
+                    is Response.Success -> _searchUser.set(DatabaseState(isSuccess = true, user = response.data))
+                    is Response.Failure -> _searchUser.set(DatabaseState(isFailure = true, error = response.errorMessage))
                 }
             }.launchIn(viewModelScope)
         }
@@ -47,10 +46,9 @@ class RegisterFamilyViewModel @Inject constructor(
         searchUserUid?.let { searchUserUid ->
             firebaseRepo.registerFamily(searchUserUid).onEach { response ->
                 when (response) {
-                    is Response.Loading -> _registerUser.value = DatabaseState(isLoading = true)
-                    is Response.Success -> _registerUser.value = DatabaseState(isSuccess = true)
-                    is Response.Failure -> _registerUser.value =
-                        DatabaseState(isFailure = true, error = response.errorMessage)
+                    is Response.Loading -> _registerUser.set(DatabaseState(isLoading = true))
+                    is Response.Success -> _registerUser.set(DatabaseState(isSuccess = true))
+                    is Response.Failure -> _registerUser.set(DatabaseState(isFailure = true, error = response.errorMessage))
                 }
             }.launchIn(viewModelScope)
         }

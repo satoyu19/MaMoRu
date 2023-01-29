@@ -49,15 +49,15 @@ class SetupBeaconFragment : Fragment() {
         _binding = FragmentSetupBeaconBinding.inflate(layoutInflater)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isBeacon.collect { state ->
-                    if (state.isSuccess == true) {   //更新成功
+                    if (state?.isSuccess == true) {   //更新成功
                         MyApplication.updateSelectedBeacon(state.beaconId)
                         MyApplication.updateRegion()
                         viewModel.stopBeacon()
                         viewModel.startBeacon()
                     }
-                    if (state.isSuccess == false){
+                    if (state?.isSuccess == false){
                         Toast.makeText(requireContext(), state.errorMessage, Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -103,7 +103,6 @@ class SetupBeaconFragment : Fragment() {
         _binding = null
     }
 
-    //todo 必要なパーミッションが許可れていればdataStoreのbeaconをtrueにする、それを使ってビーコン一覧表示の可否を判定
     private fun checkPermission(result: Map<String, Boolean>) {
         //permission(権限名), isGrant(有効 or 無効)
         result.forEach { (permission, isGrant) ->

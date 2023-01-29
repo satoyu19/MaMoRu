@@ -3,6 +3,7 @@ package jp.ac.jec.cm0119.mamoru.ui.fragments.updateprofile
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,7 @@ import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentUpdateProfileBinding
 import jp.ac.jec.cm0119.mamoru.viewmodels.updateprofile.UpdateProfileViewModel
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class UpdateProfileFragment : Fragment() {
@@ -48,7 +50,21 @@ class UpdateProfileFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
+                    viewModel.profileImageData.collect { state ->
+                        if (state?.isSuccess == true) {
+                            Glide.with(requireContext())
+                                .load(state.data.toString())
+                                .placeholder(R.drawable.ic_account)
+                                .into(binding.profileImage)
+                        }
+                        if (state?.isFailure == true) {
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                launch {
                     viewModel.readMyUser.collect { myState ->
+                        viewModel.setProfileImage(myState.profileImage)
                         Glide.with(requireContext())
                             .load(myState.profileImage)
                             .placeholder(R.drawable.ic_account)
@@ -57,31 +73,25 @@ class UpdateProfileFragment : Fragment() {
                     }
                 }
                 launch {
-                    viewModel.profileImageData.collect { state ->
-                        if (state.data != null) {   //成功
-                            Glide.with(requireContext())
-                                .load(state.data.toString())
-                                .placeholder(R.drawable.ic_account)
-                                .into(binding.profileImage)
-                        }
-                        if (state.error.isNotBlank()) {
-                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-                launch {
                     viewModel.updateMyState.collect { state ->
-                        if (state.isLoading) {
+                        if (state?.isLoading == true) {
                             binding.progressBar7.visibility = View.VISIBLE
                             binding.updateProfileLayout.visibility = View.INVISIBLE
                         }
-                        if (state.isSuccess) {
+                        if (state?.isSuccess == true) {
                             binding.progressBar7.visibility = View.INVISIBLE
                             binding.updateProfileLayout.visibility = View.VISIBLE
                             viewModel.renewalMyState(state.user!!)
+
+                            viewModel.profileImageUrl?.let {
+                                Glide.with(requireContext())
+                                    .load(it)
+                                    .into(binding.profileImage)
+                            }
                             Toast.makeText(requireContext(), "更新しました。", Toast.LENGTH_SHORT).show()
                         }
-                        if (state.isFailure) {
+                        if (state?.isFailure == true) {
+                            viewModel.readMyUser()
                             binding.progressBar7.visibility = View.INVISIBLE
                             binding.updateProfileLayout.visibility = View.VISIBLE
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
@@ -126,10 +136,20 @@ class UpdateProfileFragment : Fragment() {
             setupBtn.isEnabled = charSequence.toString().trim().isNotEmpty()
             if (charSequence.toString().trim().isNotEmpty()) {
                 binding.updateBtn.isEnabled = true
-                binding.updateBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active))
+                binding.updateBtn.setBackgroundColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.active
+                    )
+                )
             } else {
                 binding.updateBtn.isEnabled = false
-                binding.updateBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive))
+                binding.updateBtn.setBackgroundColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.inactive
+                    )
+                )
             }
         }
 

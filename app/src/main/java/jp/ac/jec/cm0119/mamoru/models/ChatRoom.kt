@@ -7,6 +7,4 @@ data class ChatRoom(
     val profileImage: String? = null,
     val lastMsg: String? = null,
     val newChatCount: Int? = null
-//    val newChats: List<Map<String, Any>>? = null, →HashMapが返される
-//    val readChats: List<Map<String, Any>>?? = null
 )

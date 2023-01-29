@@ -17,6 +17,7 @@ import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.models.BeaconInfo
 import jp.ac.jec.cm0119.mamoru.utils.Constants
 import jp.ac.jec.cm0119.mamoru.utils.Response
+import jp.ac.jec.cm0119.mamoru.utils.set
 import jp.ac.jec.cm0119.mamoru.utils.uistate.BeaconState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,13 +40,12 @@ class SetUpBeaconViewModel @Inject constructor(
     val beacons: LiveData<MutableList<BeaconInfo>>
         get() = _beacons
 
-    private val _isBeacon = MutableStateFlow(BeaconState())
-    val isBeacon: StateFlow<BeaconState> = _isBeacon
+    private val _isBeacon = MutableStateFlow<BeaconState?>(null)
+    val isBeacon: StateFlow<BeaconState?> = _isBeacon
 
     fun beaconSetup(intent: Intent) {
         if (!beaconManager.isAnyConsumerBound) {
             val channelId = "0"
-            Log.d("Test", "beaconSetup")
             beaconManager = BeaconManager.getInstanceForApplication(getApplication())
             val builder = NotificationCompat.Builder(getApplication(), channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
@@ -89,7 +89,6 @@ class SetUpBeaconViewModel @Inject constructor(
 
     fun startBeacon() {
         if (!beaconManager.isAnyConsumerBound) {
-            Log.d("Test", "startBeacon")
             beaconManager.startMonitoring(MyApplication.mRegion)
             beaconManager.startRangingBeacons(MyApplication.mRegion)
         }
@@ -97,7 +96,6 @@ class SetUpBeaconViewModel @Inject constructor(
 
     fun stopBeacon() {
         if (beaconManager.isAnyConsumerBound) {
-            Log.d("Test", "stopBeacon")
             beaconManager.stopMonitoring(MyApplication.mRegion)
             beaconManager.stopRangingBeacons(MyApplication.mRegion)
         }
@@ -110,34 +108,27 @@ class SetUpBeaconViewModel @Inject constructor(
     fun updateMyBeacon(beaconFlg: Boolean, newBeaconId: String?) {
         firebaseRepo.updateMyBeacon(beaconFlg).onEach { response ->
             when (response) {
-                is Response.Success -> _isBeacon.value =
-                    BeaconState(isSuccess = true, beaconId = newBeaconId)
-                is Response.Failure -> _isBeacon.value =
-                    BeaconState(isSuccess = false, errorMessage = response.errorMessage)
+                is Response.Success -> _isBeacon.set(BeaconState(isSuccess = true, beaconId = newBeaconId))
+                is Response.Failure -> _isBeacon.set(BeaconState(isSuccess = false, errorMessage = response.errorMessage))
                 else -> {}
             }
         }.launchIn(viewModelScope)
     }
 
     override fun didEnterRegion(region: Region?) {
-        Log.d("Test", "リージョン内")
         if (MyApplication.selectedBeaconId != null) {
-            //todo 外出中beconをfalseに変更
             firebaseRepo.updateExitToMyBeacon(false)
         }
     }
 
     override fun didExitRegion(region: Region?) {
-        Log.d("Test", "リージョン外")
         if (MyApplication.selectedBeaconId != null) {
-            //todo 外出中beconをtrueに変更
             firebaseRepo.updateExitToMyBeacon(true)
         }
     }
 
     override fun didDetermineStateForRegion(state: Int, region: Region?) {}
 
-    //todo 他のビーコンがある状態で正常にregionの変更が行われるか
     override fun didRangeBeaconsInRegion(
         beacons: MutableCollection<Beacon>?,
         region: Region?

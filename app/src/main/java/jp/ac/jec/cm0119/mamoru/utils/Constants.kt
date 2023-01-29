@@ -7,6 +7,7 @@ object Constants {
     const val MESSAGE_IMAGE = "message"
     const val DATABASE_USERS = "users"
     const val DATABASE_FAMILY = "families"
+    const val DATABASE_CHAT = "chats"
     const val DATABASE_CHAT_ROOMS = "chatRooms"
     const val DATABASE_NEW_CHATS = "newChats"
     const val DATABASE_READ_CHATS = "readChats"

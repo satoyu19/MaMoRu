@@ -49,28 +49,28 @@ class SetupProfileFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.profileImageData.collect { state ->
-                        if (state.isSuccess) {   //成功
+                        if (state?.isSuccess == true) {   //成功
                             Glide.with(requireContext())
                                 .load(state.data.toString())
                                 .placeholder(R.drawable.ic_account)
                                 .into(binding.profileImage)
                         }
-                        if (state.isFailure) {
+                        if (state?.isFailure == true) {
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
                 launch {
                     viewModel.userState.collect { state ->   //DatabaseState
-                        if (state.isLoading) {
+                        if (state?.isLoading == true) {
                             binding.progressBar3.visibility = View.VISIBLE
                             binding.setupLayout.visibility = View.INVISIBLE
                         }
-                        if (state.isSuccess) {   //成功
+                        if (state?.isSuccess == true) {   //成功
                             val action = SetupProfileFragmentDirections.actionSetupProfileFragmentToMainActivity()
                             NavHostFragment.findNavController(this@SetupProfileFragment).navigate(action)
                         }
-                        if (state.isFailure) {
+                        if (state?.isFailure == true) {
                             binding.progressBar3.visibility = View.INVISIBLE
                             binding.setupLayout.visibility = View.VISIBLE
                         }

@@ -37,7 +37,7 @@ class ChatRoomsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.registerReceiverInfoFailure.collect { response ->
-                    if (response.isFailure) {
+                    if (response?.isFailure == true) {
                         Toast.makeText(requireContext(), response.error, Toast.LENGTH_SHORT).show()
                     }
                 }

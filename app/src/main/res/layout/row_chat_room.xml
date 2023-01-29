@@ -44,17 +44,18 @@
 
     <TextView
         android:id="@+id/new_message_count"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:textStyle="normal"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginEnd="16dp"
-        android:visibility="invisible"
-        android:textSize="20sp"
+        android:background="@drawable/new_message"
         android:gravity="center"
         android:textColor="@color/white"
-        android:background="@drawable/new_message"
+        android:textSize="20sp"
+        android:textStyle="normal"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

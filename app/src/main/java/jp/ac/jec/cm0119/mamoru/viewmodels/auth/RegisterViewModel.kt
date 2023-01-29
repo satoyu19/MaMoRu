@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.uistate.AuthState
 import jp.ac.jec.cm0119.mamoru.utils.Response
+import jp.ac.jec.cm0119.mamoru.utils.set
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -23,22 +24,16 @@ class RegisterViewModel @Inject constructor(private val firebaseRepo: FirebaseRe
     var mailAddress = ObservableField<String>()
     var password = ObservableField<String>()
 
-    private val _user = MutableStateFlow(AuthState())
-    val user: StateFlow<AuthState> = _user
+    private val _user = MutableStateFlow<AuthState?>(null)
+    val user: StateFlow<AuthState?> = _user
 
     //Auth認証
     fun register() {
         firebaseRepo.register(mailAddress.get()!!, password.get()!!).onEach { response ->
                 when (response) {
-                    is Response.Loading -> {
-                        _user.value = AuthState(isLoading = true)
-                    }
-                    is Response.Failure -> {
-                        _user.value = AuthState(error = response.errorMessage, isFailure = true)
-                    }
-                    is Response.Success -> {
-                        _user.value = AuthState(isSuccess = true)
-                    }
+                    is Response.Loading -> _user.set(AuthState(isLoading = true))
+                    is Response.Failure -> _user.set(AuthState(error = response.errorMessage, isFailure = true))
+                    is Response.Success -> _user.set(AuthState(isSuccess = true))
                 }
             }.launchIn(viewModelScope)
     }

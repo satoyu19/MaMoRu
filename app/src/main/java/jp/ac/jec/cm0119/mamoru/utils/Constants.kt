@@ -31,4 +31,12 @@ object Constants {
 
     //beacon
     const val IBEACON_FORMAT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"
+
+    //notification
+    const val CHANNEL_ID = "Channel_id_default"
+    const val CHANNEL_NAME = "Channel_name_default"
+
+    //retrofit
+    const val BASE_URL = "https://fcm.googleapis.com"
+
 }

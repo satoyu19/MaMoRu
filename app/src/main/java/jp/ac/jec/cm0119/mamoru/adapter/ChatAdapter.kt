@@ -13,8 +13,10 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
+import com.firebase.ui.common.ChangeEventType
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.databinding.ReceiveImageMessageBinding

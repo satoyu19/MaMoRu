@@ -16,6 +16,7 @@ import jp.ac.jec.cm0119.mamoru.MyApplication
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.models.BeaconInfo
 import jp.ac.jec.cm0119.mamoru.utils.Constants
+import jp.ac.jec.cm0119.mamoru.utils.Constants.CHANNEL_ID
 import jp.ac.jec.cm0119.mamoru.utils.Response
 import jp.ac.jec.cm0119.mamoru.utils.set
 import jp.ac.jec.cm0119.mamoru.utils.uistate.BeaconState
@@ -45,10 +46,10 @@ class SetUpBeaconViewModel @Inject constructor(
 
     fun beaconSetup(intent: Intent) {
         if (!beaconManager.isAnyConsumerBound) {
-            val channelId = "0"
+            val channelId = "beacon"
             beaconManager = BeaconManager.getInstanceForApplication(getApplication())
             val builder = NotificationCompat.Builder(getApplication(), channelId)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.mipmap.ic_launcher) //todo　アイコン変更
                 .setContentTitle("Beacon検知中")
                 .setContentText("領域監視を実行しています")
 
@@ -81,8 +82,6 @@ class SetUpBeaconViewModel @Inject constructor(
                 enableForegroundServiceScanning(builder.build(), 456)
                 setEnableScheduledScanJobs(false)
 
-//                startMonitoring(MyApplication.mRegion)
-//                startRangingBeacons(MyApplication.mRegion)
             }
         }
     }
@@ -135,6 +134,7 @@ class SetUpBeaconViewModel @Inject constructor(
     ) {
         var detectionBeacons = mutableListOf<BeaconInfo>()
 
+        // TODO: 30分と一時間経過したら登録している全ユーザーに通知を送る
         beacons?.forEach { beacon ->
             if (MyApplication.selectedBeaconId == beacon.id1.toString()) {   //監視対象ビーコンあり
                 val distance = MyApplication.comparisonBeaconDistance(beacon.distance)

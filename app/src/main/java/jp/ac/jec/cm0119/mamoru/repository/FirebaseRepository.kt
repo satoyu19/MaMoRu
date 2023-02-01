@@ -9,18 +9,17 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpException
 import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
-import jp.ac.jec.cm0119.mamoru.models.AllNewChatCount
-import jp.ac.jec.cm0119.mamoru.models.ChatRoom
-import jp.ac.jec.cm0119.mamoru.models.Message
-import jp.ac.jec.cm0119.mamoru.models.User
+import jp.ac.jec.cm0119.mamoru.data.ApiInterface
+import jp.ac.jec.cm0119.mamoru.models.*
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_CHAT
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_CHAT_ROOMS
-import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_USERS
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_FAMILY
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_NEW_CHATS
 import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_READ_CHATS
+import jp.ac.jec.cm0119.mamoru.utils.Constants.DATABASE_USERS
 import jp.ac.jec.cm0119.mamoru.utils.Constants.MESSAGE_IMAGE
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PROFILE_IMAGE
 import jp.ac.jec.cm0119.mamoru.utils.Response
@@ -33,15 +32,15 @@ import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.HashMap
 
 
-class FirebaseRepository @Inject constructor() {
+class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
 
     private var firebaseAuth: FirebaseAuth = Firebase.auth
 
     private var firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
     private var firebaseStorage: FirebaseStorage = Firebase.storage
+    private var firebaseMessaging: FirebaseMessaging = FirebaseMessaging.getInstance()
 
     var currentUser: FirebaseUser? = null
         private set
@@ -173,6 +172,18 @@ class FirebaseRepository @Inject constructor() {
     }
 
     /**
+     * FirebaseMessaging
+     */
+
+    suspend fun sendNotification(notificationModel: NotificationModel) {
+        try {
+            api.sendNotification(notificationModel)
+        }catch (e: Throwable) {
+            Log.d("Mamoru", "sendNotification: ${e.message}")
+        }
+    }
+
+    /**
      * FirebaseDatabase
      */
     // TODO: オフライン時のsetValueで止まるところとか,Throwableで処理したらどうなる？
@@ -182,6 +193,9 @@ class FirebaseRepository @Inject constructor() {
 
         try {
             val currentUserUid = currentUser!!.uid
+
+            val myToken = firebaseMessaging.token.await()
+            myInfo.myToken = myToken
 
             firebaseDatabase.reference.child(DATABASE_USERS).child(currentUserUid)
                 .setValue(myInfo).await()
@@ -342,9 +356,6 @@ class FirebaseRepository @Inject constructor() {
                         if (myFamilyUid.contains(user.key)) {
                             // TODO: ここでユーザーがちゃんと取得されていない可能性がある
                             val userInfo: User? = user.getValue(User::class.java)
-                            Log.d("Test", "Test" + userInfo!!.exitBeacon.toString())
-                            Log.d("Test", "Test" + userInfo!!.beacon.toString())
-                            Log.d("Test", "Test" + userInfo!!.updateTime.toString())
                             userInfo?.let { myFamily.add(it) }
                         }
                     }
@@ -366,7 +377,7 @@ class FirebaseRepository @Inject constructor() {
         receiverUid: String,
         newMessage: String?,
         imageUri: Uri?,
-    ): Flow<Response.Failure<Nothing>> = flow {
+    ): Flow<Response<String>> = flow {
 
         try {
             val currentUserUid = currentUser!!.uid
@@ -380,6 +391,9 @@ class FirebaseRepository @Inject constructor() {
             val receiverRoomRef =
                 receiverRef
                     .child(DATABASE_CHAT_ROOMS).child(receiverRoom)
+
+            val receiver = firebaseDatabase.reference.child(DATABASE_USERS).child(receiverUid).get().await()
+            val receiverInfo: User? = receiver.getValue(User::class.java)
 
             //receiverのallNewChatCountのインクリメント
             val snapshot = receiverRef.get().await()
@@ -423,6 +437,7 @@ class FirebaseRepository @Inject constructor() {
             msgObj["newChatCount"] = receiverNewChatCount
             receiverRoomRef.updateChildren(msgObj).await()
 
+            emit(Response.Success(data = receiverInfo?.myToken))
         } catch (e: Throwable) {
             emit(Response.Failure(errorMessage = "メッセージの送信に失敗しました"))
         }
@@ -458,10 +473,6 @@ class FirebaseRepository @Inject constructor() {
 
             val valueListener = object : ValueEventListener {
                 override fun onDataChange(snapshots: DataSnapshot) {
-//                    var user: User? = null
-//                    senderRef!!.get().addOnSuccessListener {
-//                        user = it.getValue(User::class.java)
-//                    }
                     var allNewChatCount: AllNewChatCount? = null
                     senderRef!!.get().addOnSuccessListener { snapshot ->
                         allNewChatCount = snapshot.getValue(AllNewChatCount::class.java)
@@ -482,14 +493,6 @@ class FirebaseRepository @Inject constructor() {
                         var newChatCountObj = HashMap<String, Any>()
                         newChatCountObj["newChatCount"] = 0
                         senderRoomRef!!.updateChildren(newChatCountObj)
-//                        val resultAllNewChatCount = allNewChatCount?.allNewChatCount?.minus(currentChatCount)
-
-                        // TODO: うまくいかなかった時の処理をどーするか
-//                        resultAllNewChatCount?.let {
-//                            var allNewChatCountObj = HashMap<String, Any>()
-//                            allNewChatCountObj["allNewChatCount"] = it
-//                            senderRef.updateChildren(allNewChatCountObj)
-//                        }
 
                         for (snapshot in snapshots.children) {
                             val nodeId = snapshot.key
@@ -595,7 +598,6 @@ class FirebaseRepository @Inject constructor() {
     }
 
     //ビーコン検出時間更新
-    // TODO: flowにしてないが失敗したら通知送って見直す様にさせたい
     fun updateTimeActionDetected() {
         val currentTimeMinutes = System.currentTimeMillis() / 1000 / 60
         var beaconObj = java.util.HashMap<String, Any>()
@@ -640,27 +642,15 @@ class FirebaseRepository @Inject constructor() {
         var userChatRef: DatabaseReference? = null
         try {
             userChatRef = firebaseDatabase.reference.child(DATABASE_CHAT).child(currentUser!!.uid)
-//            val senderRoomRef =
-//                firebaseDatabase.reference.child(DATABASE_CHAT_ROOMS).child(currentUser!!.uid)
-//            var allNewChatCount = 0
+
             val snapshot = userChatRef.get().await()
             if (snapshot.exists()) {
-//                snapshots.children.forEach { snapshot ->
-//                    val chatRoom: ChatRoom? = snapshot.getValue(ChatRoom::class.java)
-//                    chatRoom?.newChatCount?.let {
-//                        allNewChatCount += it
-//                    }
-//                }
                 val allNewChatCount: AllNewChatCount? = snapshot.getValue(AllNewChatCount::class.java)
                 if (allNewChatCount?.allNewChatCount == 0 || allNewChatCount?.allNewChatCount == null) {
                     trySendBlocking(Response.Success(data = 0))
                 } else {
                     trySendBlocking(Response.Success(data = allNewChatCount.allNewChatCount))
                 }
-//                var allNewChatCountObj = HashMap<String, Any>()
-//                allNewChatCountObj["allNewChatCount"] = allNewChatCount
-//                userRef.updateChildren(allNewChatCountObj)
-//                trySendBlocking(Response.Success(data = allNewChatCount))
             }
         } catch (e: Throwable) {
             close(e)
@@ -671,10 +661,6 @@ class FirebaseRepository @Inject constructor() {
                 if (snapshots.exists()) {
                     val allNewChatCount: AllNewChatCount? = snapshots.getValue(AllNewChatCount::class.java)
 
-//                    val user: User? = snapshots.getValue(User::class.java)
-//                    if (user?.allNewChatCount != null) {
-//                        trySendBlocking(Response.Success(user.allNewChatCount))
-//                    }
                     if (allNewChatCount?.allNewChatCount == 0 || allNewChatCount?.allNewChatCount == null) {
                         trySendBlocking(Response.Success(data = 0))
                     } else {

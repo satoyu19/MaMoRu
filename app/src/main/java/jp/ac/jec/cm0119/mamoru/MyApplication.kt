@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.HiltAndroidApp
+import jp.ac.jec.cm0119.mamoru.utils.ListeningToActivityCallbacks
 import org.altbeacon.beacon.BeaconManager
 import org.altbeacon.beacon.Identifier
 import org.altbeacon.beacon.Region
@@ -14,8 +15,10 @@ import org.altbeacon.beacon.Region
 @HiltAndroidApp
 class MyApplication : Application() {
 
+
     companion object {
 
+        var isNotActive: Boolean = true
         var mRegion = Region("beacon", null, null, null)
             private set
 
@@ -46,13 +49,13 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // TODO: オフラインキャッシュについて
         FirebaseDatabase.getInstance().setPersistenceEnabled(true)
-
+        registerActivityLifecycleCallbacks(ListeningToActivityCallbacks())
         val beaconManager = BeaconManager.getInstanceForApplication(this)
         if (!beaconManager.isAnyConsumerBound) {
+            Log.d("Test", "チャンネル")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channelId = "0"
+                val channelId = "beacon"
                 val channel = NotificationChannel(
                     channelId,
                     "Beacon service",

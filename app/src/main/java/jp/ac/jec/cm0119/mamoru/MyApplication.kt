@@ -4,7 +4,6 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
-import android.util.Log
 import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.HiltAndroidApp
 import jp.ac.jec.cm0119.mamoru.utils.ListeningToActivityCallbacks
@@ -14,7 +13,6 @@ import org.altbeacon.beacon.Region
 
 @HiltAndroidApp
 class MyApplication : Application() {
-
 
     companion object {
 
@@ -26,9 +24,23 @@ class MyApplication : Application() {
             private set
         private var beforeBeaconDistance = 0.0
 
+        var beaconTime: Long? = null
+            private set
+
+        var isExitBeacon: Boolean? = null
+            private set
+
+        fun updateBeaconTime(time: Long) {
+            beaconTime = time
+        }
+
+        fun updateIsExitBeacon(flg: Boolean) {
+            isExitBeacon = flg
+        }
+
         fun comparisonBeaconDistance(afterDistance: Double): Double {
-            var max = beforeBeaconDistance.coerceAtLeast(afterDistance)
-            var min = beforeBeaconDistance.coerceAtMost(afterDistance)
+            val max = beforeBeaconDistance.coerceAtLeast(afterDistance)
+            val min = beforeBeaconDistance.coerceAtMost(afterDistance)
             beforeBeaconDistance = afterDistance
             return max - min
         }
@@ -53,7 +65,6 @@ class MyApplication : Application() {
         registerActivityLifecycleCallbacks(ListeningToActivityCallbacks())
         val beaconManager = BeaconManager.getInstanceForApplication(this)
         if (!beaconManager.isAnyConsumerBound) {
-            Log.d("Test", "チャンネル")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val channelId = "beacon"
                 val channel = NotificationChannel(

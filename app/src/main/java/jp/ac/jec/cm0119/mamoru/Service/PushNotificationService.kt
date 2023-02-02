@@ -17,7 +17,6 @@ import jp.ac.jec.cm0119.mamoru.ui.MainActivity
 import jp.ac.jec.cm0119.mamoru.utils.Constants.CHANNEL_ID
 import jp.ac.jec.cm0119.mamoru.utils.Constants.CHANNEL_NAME
 
-// TODO: 通知はバックグラウンドだけにしたい
 class PushNotificationService: FirebaseMessagingService() {
 
     companion object {
@@ -37,6 +36,7 @@ class PushNotificationService: FirebaseMessagingService() {
 
     private fun sendNotification(remoteMessage: RemoteMessage) {
         // 受け取った後の遷移先の設定
+        Log.d("Test", "sendNotification: ${MyApplication.isNotActive}")
         if (MyApplication.isNotActive) {
             val title = remoteMessage.data["title"]
             val message = remoteMessage.data["message"]

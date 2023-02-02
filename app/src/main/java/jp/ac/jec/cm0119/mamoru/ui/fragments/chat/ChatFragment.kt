@@ -69,7 +69,7 @@ class ChatFragment : Fragment() {
                     viewModel.sendMessage.collect {state ->
                         if (state?.isSuccess == true) {
                             Log.d("Test", "onCreateView: ${state.token}")
-                            state.token?.let { viewModel.sendNotification(it) }
+                            state.token?.let { viewModel.sendNotificationMessageToReceiver(it) }
                         }
                         if (state?.isFailure == true) {
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()

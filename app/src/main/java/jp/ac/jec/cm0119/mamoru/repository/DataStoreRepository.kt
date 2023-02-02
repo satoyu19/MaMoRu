@@ -64,9 +64,6 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         }
     }
 
-
-    // TODO: State →　Info変換
-    /** context.dataStore.dataはFlow型であるため、Flowで受け取る,coroutinesのFlowであることに注意　**/
     val readMyInfo: Flow<User> = context.dataStore.data
         .catch { exception ->
             if (exception is IOException) {

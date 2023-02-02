@@ -1,7 +1,6 @@
 package jp.ac.jec.cm0119.mamoru.viewmodels.chat
 
 import android.net.Uri
-import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.ac.jec.cm0119.mamoru.data.ApiInterface
 import jp.ac.jec.cm0119.mamoru.models.Data
 import jp.ac.jec.cm0119.mamoru.models.Message
 import jp.ac.jec.cm0119.mamoru.models.NotificationModel
@@ -18,7 +16,6 @@ import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.Response
 import jp.ac.jec.cm0119.mamoru.utils.set
 import jp.ac.jec.cm0119.mamoru.utils.uistate.DatabaseState
-import jp.ac.jec.cm0119.mamoru.utils.uistate.MessagingState
 import jp.ac.jec.cm0119.mamoru.utils.uistate.StorageState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -99,22 +96,10 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
         this.receiverUid = receiverUid
     }
 
-    fun sendNotification(token: String) {
+    fun sendNotificationMessageToReceiver(token: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val notificationModel = NotificationModel(to = token, data = Data("MaMoRu", "メッセージを受信しました。"))
-            firebaseRepo.sendNotification(notificationModel)
+            firebaseRepo.sendNotificationMessageToReceiver(notificationModel)
         }
     }
-
-//    /**
-//     * FirebaseMessaging
-//     */
-//
-//    suspend fun sendNotification(notificationModel: NotificationModel) {
-//        try {
-//            api.sendNotification(notificationModel)
-//        }catch (e: Throwable) {
-//            Log.d("Mamoru", "sendNotification: ${e.message}")
-//        }
-//    }
 }

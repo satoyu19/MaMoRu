@@ -16,6 +16,7 @@ import androidx.lifecycle.*
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import jp.ac.jec.cm0119.mamoru.R
@@ -54,12 +55,25 @@ class ChatFragment : Fragment() {
         /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.imageMessage.collect { state ->
-                    if (state?.isSuccess == true) {
-                        viewModel.sendMessage(state.data)
+                launch {
+                    viewModel.imageMessage.collect { state ->
+                        if (state?.isSuccess == true) {
+                            viewModel.sendMessage(state.data)
+                        }
+                        if (state?.isFailure == true) {
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        }
                     }
-                    if (state?.isFailure == true) {
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                }
+                launch {
+                    viewModel.sendMessage.collect {state ->
+                        if (state?.isSuccess == true) {
+                            Log.d("Test", "onCreateView: ${state.token}")
+                            state.token?.let { viewModel.sendNotificationMessageToReceiver(it) }
+                        }
+                        if (state?.isFailure == true) {
+                            Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -105,11 +119,13 @@ class ChatFragment : Fragment() {
             binding.chatRecycleView.adapter = adapter
         }
 
-        viewModel.readReceiveMessageFailure.observe(viewLifecycleOwner, Observer { errorMessage ->
-            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        adapter.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                binding.chatRecycleView.smoothScrollToPosition(adapter.itemCount)
+            }
         })
 
-        viewModel.sendMessageFailure.observe(viewLifecycleOwner, Observer { errorMessage ->
+        viewModel.readReceiveMessageFailure.observe(viewLifecycleOwner, Observer { errorMessage ->
             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
         })
 

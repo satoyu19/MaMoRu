@@ -51,13 +51,13 @@ class BeaconAdapter(
             if (beacon.uuid == MyApplication.selectedBeaconId) {    //ビーコン解除
                 showDialog(null)
             } else {    //ビーコン更新
-                showDialog(beacon.uuid)
+                showDialog(beacon)
             }
         }
     }
 
-    private fun showDialog(beaconId: String? = null) {
-        val newFragment = SelectResetDialog(beaconId, viewModel)
+    private fun showDialog(beacon: BeaconInfo?) {
+        val newFragment = ResetSelectBeaconDialog(beacon, viewModel)
         newFragment.show(childFragmentMng, "reset")
     }
 }
@@ -73,21 +73,21 @@ class BeaconCallBack : DiffUtil.ItemCallback<BeaconInfo>() {
     }
 }
 
-class SelectResetDialog(
-    private val selectedBeaconUid: String? = null,
+class ResetSelectBeaconDialog(
+    private val beacon: BeaconInfo? = null,
     private val viewModel: SetUpBeaconViewModel
 ) : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             var builder: AlertDialog.Builder?
-            if (selectedBeaconUid != null) {    //更新
+            if (beacon != null) {    //更新
                 builder = AlertDialog.Builder(it)
                 builder.setTitle("選択したビーコンで開始しますか？")
                     .setMessage("このビーコンを利用して自身の行動を他のユーザーに知らせることができます。")
                     .setPositiveButton("はい",
                         DialogInterface.OnClickListener { _, _ ->
-                            viewModel.updateMyBeacon(true, selectedBeaconUid)
+                            viewModel.updateMyBeacon(true, beacon.uuid)
                         })
                     .setNegativeButton("いいえ", DialogInterface.OnClickListener { _, _ ->
                     })

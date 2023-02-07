@@ -36,6 +36,7 @@ class FamilyAdapter : ListAdapter<User, FamilyAdapter.UserViewHolder>(FamilyCall
         holder.binding.userName.text = user.name
 
         if (user.beacon == true) {
+            holder.binding.beaconUseTxt.visibility = View.VISIBLE
             if (user.exitBeacon == true) {
                 holder.binding.beaconUseTxt.text = "外出中"
             } else {
@@ -50,7 +51,7 @@ class FamilyAdapter : ListAdapter<User, FamilyAdapter.UserViewHolder>(FamilyCall
             holder.binding.beaconImage.setImageResource(R.drawable.ic_beacon)
         } else {
             holder.binding.beaconImage.setImageResource(R.drawable.ic_permission_off)
-            holder.binding.beaconUseTxt.text = "未使用"
+            holder.binding.beaconUseTxt.visibility = View.INVISIBLE
         }
         holder.binding.familyRowLayout.setOnClickListener {
             val action =

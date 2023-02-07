@@ -23,6 +23,7 @@ import jp.ac.jec.cm0119.mamoru.databinding.FragmentSetupBeaconBinding
 import jp.ac.jec.cm0119.mamoru.ui.MainActivity
 import jp.ac.jec.cm0119.mamoru.viewmodels.setupbeacon.SetUpBeaconViewModel
 import kotlinx.coroutines.launch
+import org.altbeacon.beacon.*
 
 @AndroidEntryPoint
 class SetupBeaconFragment : Fragment() {
@@ -47,14 +48,12 @@ class SetupBeaconFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentSetupBeaconBinding.inflate(layoutInflater)
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isBeacon.collect { state ->
                     if (state?.isSuccess == true) {   //更新成功
                         MyApplication.updateSelectedBeacon(state.beaconId)
                         MyApplication.updateRegion()
-                        viewModel.stopBeacon()
                         viewModel.startBeacon()
                     }
                     if (state?.isSuccess == false){
@@ -68,15 +67,18 @@ class SetupBeaconFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("Test", "onViewCreated: ")
         requestPermission()
         adapter = BeaconAdapter(childFragmentManager, viewModel)
         manager = LinearLayoutManager(requireContext())
         binding.beaconRecycleView.layoutManager = manager
         binding.beaconRecycleView.adapter = adapter
 
-        viewModel.beacons.observe(viewLifecycleOwner) { beacon ->
-            if (beacon.isNotEmpty()) {
-                adapter.submitList(beacon)
+        viewModel.beacons.observe(viewLifecycleOwner) { beacons ->
+            Log.d("Test", "onViewCreated: ${beacons.size}")
+            if (beacons.isNotEmpty()) {
+                Log.d("Test", "onViewCreated: observe")
+                adapter.submitList(beacons)
             }
         }
     }

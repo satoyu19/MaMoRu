@@ -16,5 +16,6 @@ data class User (
     var birthDay: String? = null,
     var beacon: Boolean? = null,
     var exitBeacon: Boolean? = null,
+    var myToken: String? = null,
     var updateTime: Long? = null
 ): Parcelable

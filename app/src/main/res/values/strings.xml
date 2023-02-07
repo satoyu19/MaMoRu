@@ -38,4 +38,5 @@
     <string name="beacon_txt">付近のビーコン一覧</string>
     <string name="nothing_permission_txt">ビーコン機能を利用するために権限が許可されていません。\n権限の許可を行なってください</string>
     <string name="not_beacon">未使用</string>
+    <string name="read_message">既読</string>
 </resources>

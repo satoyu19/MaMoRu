@@ -48,7 +48,7 @@ class UpdateProfileFragment : Fragment() {
 
         /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 launch {
                     viewModel.profileImageData.collect { state ->
                         if (state?.isSuccess == true) {

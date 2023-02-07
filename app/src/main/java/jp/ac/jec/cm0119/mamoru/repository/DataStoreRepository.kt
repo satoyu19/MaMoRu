@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import jp.ac.jec.cm0119.mamoru.models.User
+import jp.ac.jec.cm0119.mamoru.repository.DataStoreRepository.PreferenceKeys.dataStore
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_BEACON
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_BIRTHDAY
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_DESCRIPTION
@@ -35,9 +36,8 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         val myDescription = stringPreferencesKey(PREFERENCES_MY_DESCRIPTION)
         val myBirthDay = stringPreferencesKey(PREFERENCES_MY_BIRTHDAY)
         var myBeacon = booleanPreferencesKey(PREFERENCES_MY_BEACON)
+        val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
     }
-
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
 
     //初期書き込み
     suspend fun saveMyInfo(myState: User) {
@@ -64,9 +64,6 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         }
     }
 
-
-    // TODO: State →　Info変換
-    /** context.dataStore.dataはFlow型であるため、Flowで受け取る,coroutinesのFlowであることに注意　**/
     val readMyInfo: Flow<User> = context.dataStore.data
         .catch { exception ->
             if (exception is IOException) {

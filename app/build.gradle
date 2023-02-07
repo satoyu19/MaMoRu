@@ -61,12 +61,6 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
 
-    // Room components
-    implementation "androidx.room:room-runtime:2.4.3"
-    kapt "androidx.room:room-compiler:2.4.3"
-    implementation "androidx.room:room-ktx:2.4.3"
-    androidTestImplementation "androidx.room:room-testing:2.4.3"
-
     //dataStore
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
@@ -79,6 +73,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-database-ktx'
+    implementation 'com.google.firebase:firebase-messaging'
     //Firebase UI
     implementation 'com.firebaseui:firebase-ui-database:8.0.2'
 
@@ -99,4 +94,8 @@ dependencies {
 
     //beacon
     implementation 'org.altbeacon:android-beacon-library:2.19.4'
+
+    //retrofit,moshi
+    implementation 'com.squareup.moshi:moshi-kotlin:1.8.0'
+    implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
 }

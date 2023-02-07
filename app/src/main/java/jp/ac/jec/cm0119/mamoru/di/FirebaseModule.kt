@@ -16,5 +16,4 @@ object FirebaseModule {
     fun provideFirebaseRepository(api: ApiInterface): FirebaseRepository{
         return FirebaseRepository(api)
     }
-
 }

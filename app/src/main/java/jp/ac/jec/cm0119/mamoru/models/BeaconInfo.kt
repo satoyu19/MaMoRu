@@ -5,4 +5,5 @@ import android.os.Parcelable
 data class BeaconInfo(
     val uuid: String,
     val distance: String,
+    val macAddress: String
 )

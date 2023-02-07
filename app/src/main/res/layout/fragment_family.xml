@@ -42,17 +42,25 @@
                 app:layout_constraintStart_toEndOf="@+id/family_title"
                 app:layout_constraintTop_toTopOf="@+id/family_title" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/family_recycle_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:background="@android:color/white"
-                android:paddingHorizontal="16dp"
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swiped_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/family_title" />
+                app:layout_constraintTop_toBottomOf="@+id/family_title">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/family_recycle_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:background="@android:color/white"
+                    android:paddingHorizontal="16dp" />
+
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
             <ImageView
                 android:id="@+id/not_family_image"

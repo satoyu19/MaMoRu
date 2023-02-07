@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="start"
+    android:layout_marginRight="40dp"
     android:layout_gravity="start"
     >
 

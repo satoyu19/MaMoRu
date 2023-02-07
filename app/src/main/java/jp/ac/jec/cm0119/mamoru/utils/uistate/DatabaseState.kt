@@ -9,6 +9,6 @@ data class DatabaseState(
     val user: User? = null,
     val token: String? = null,
     val allNewChatCount: Int? = null,
-    val myFamily: List<String>? = null,
+    val myFamily: List<User>? = null,
     val error: String = ""
 )

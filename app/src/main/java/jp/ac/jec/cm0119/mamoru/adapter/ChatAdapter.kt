@@ -89,6 +89,9 @@ class ChatAdapter(
         when (viewHolder) {
             is SentMsgHolder -> {
                 viewHolder.binding.message.text = message.message
+                if (message.read) {
+                    viewHolder.binding.readMessage.visibility = View.VISIBLE
+                }
             }
             is SendImgMsgHolder -> {
                 Glide.with(viewHolder.binding.root.context).load(message.imageUrl).placeholder(R.drawable.ic_image)
@@ -96,6 +99,9 @@ class ChatAdapter(
                 viewHolder.binding.image.setOnClickListener {
                     val action = ChatFragmentDirections.actionChatFragmentToUpImageFragment(message.imageUrl!!)
                     viewHolder.itemView.findNavController().navigate(action)
+                }
+                if (message.read) {
+                    viewHolder.binding.readImageMessage.visibility = View.VISIBLE
                 }
             }
             is ReceiveMsgHolder -> {

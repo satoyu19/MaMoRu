@@ -36,8 +36,8 @@ class PushNotificationService: FirebaseMessagingService() {
 
     private fun sendNotification(remoteMessage: RemoteMessage) {
         // 受け取った後の遷移先の設定
-        Log.d("Test", "sendNotification: ${MyApplication.isNotActive}")
         if (MyApplication.isNotActive) {
+            Log.d("Test", "sendNotification: send")
             val title = remoteMessage.data["title"]
             val message = remoteMessage.data["message"]
 

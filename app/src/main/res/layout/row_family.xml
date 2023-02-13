@@ -20,21 +20,24 @@
 
     <TextView
         android:id="@+id/user_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="ユーザー名"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:lines="1"
         android:textSize="20sp"
         android:textStyle="normal"
-        android:layout_marginStart="21dp"
         app:layout_constraintBottom_toBottomOf="@+id/user_image"
+        app:layout_constraintEnd_toStartOf="@+id/beacon_image"
         app:layout_constraintStart_toEndOf="@+id/user_image"
-        app:layout_constraintTop_toTopOf="@+id/user_image" />
+        app:layout_constraintTop_toTopOf="@+id/user_image"
+        tools:text="ユーザー名" />
 
     <ImageView
         android:id="@+id/beacon_image"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="21dp"
         android:layout_marginEnd="28dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

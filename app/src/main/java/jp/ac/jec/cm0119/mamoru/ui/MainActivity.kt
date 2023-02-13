@@ -1,10 +1,13 @@
 package jp.ac.jec.cm0119.mamoru.ui
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -36,7 +39,6 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                /**Flow collect**/
                 launch {
                     viewModel.userState.collect { state ->
                         if (state.isLoading) {
@@ -61,7 +63,8 @@ class MainActivity : AppCompatActivity() {
                         if (state.isSuccess) {
                             state.allNewChatCount?.let {
                                 if (it != 0) {
-                                    val badge = binding.bottomNavigationView.getOrCreateBadge(R.id.chatRoomsFragment)
+                                    val badge =
+                                        binding.bottomNavigationView.getOrCreateBadge(R.id.chatRoomsFragment)
                                     badge.number = state.allNewChatCount
                                 } else {
                                     binding.bottomNavigationView.removeBadge(R.id.chatRoomsFragment)
@@ -92,7 +95,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.bottomNavigationView.setupWithNavController(navController)
-
         setContentView(binding.root)
     }
 
@@ -104,5 +106,19 @@ class MainActivity : AppCompatActivity() {
                 binding.bottomNavigationView.visibility = View.GONE
             }
         }
+    }
+
+
+    override fun dispatchTouchEvent(motionEvent: MotionEvent?): Boolean {
+        val event = motionEvent ?: return false
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            val view = currentFocus
+            if (view is EditText) {
+                val inputManager =
+                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputManager.hideSoftInputFromWindow(view.windowToken, 0)
+            }
+        }
+        return super.dispatchTouchEvent(event)
     }
 }

@@ -7,5 +7,6 @@ data class StorageState (
     val isSuccess: Boolean = false,
     val isFailure: Boolean = false,
     val data: Uri? = null,
+    val imageMessageKey: String? = null,
     var error: String =  ""
         )

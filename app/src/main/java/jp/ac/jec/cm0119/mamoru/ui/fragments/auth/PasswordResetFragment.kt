@@ -25,7 +25,6 @@ import jp.ac.jec.cm0119.mamoru.databinding.FragmentPasswordResetBinding
 import jp.ac.jec.cm0119.mamoru.viewmodels.auth.PasswordResetViewModel
 import kotlinx.coroutines.launch
 
-// TODO: SHAの登録が必要？メールが送信されない。処理はOK。アプリ消去でもログアウト状態とされ、処理される 
 @AndroidEntryPoint
 class PasswordResetFragment : Fragment() {
 
@@ -41,7 +40,6 @@ class PasswordResetFragment : Fragment() {
         _binding = FragmentPasswordResetBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
-        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 

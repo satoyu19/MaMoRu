@@ -4,6 +4,7 @@ data class Message (
     var message: String? = null,
     var senderId: String? = null,   //送り主？
     var imageUrl: String? = null,
+    var imageFlg: Boolean = false,
     var read: Boolean = false,
     var timeStamp: Long = 0
 )

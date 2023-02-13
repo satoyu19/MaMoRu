@@ -2,7 +2,6 @@ package jp.ac.jec.cm0119.mamoru.repository
 
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.*
@@ -33,7 +32,7 @@ import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
@@ -57,7 +56,7 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
      */
 
     //Auth登録
-    fun register(email: String, password: String): Flow<Response<Nothing>> = flow {
+    fun registerAuth(email: String, password: String): Flow<Response<Nothing>> = flow {
         emit(Response.Loading())
 
         try {
@@ -82,7 +81,6 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
         }
     }
 
-    //todo: 何度も同じアカウントで失敗するとログインできなくなる。パスワード変更等で処置可能？
     //ログイン
     fun login(email: String, password: String): Flow<Response<FirebaseUser>> = flow {
         emit(Response.Loading())
@@ -94,7 +92,6 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
             }!!))
 
         } catch (e: HttpException) {
-            Log.d("Test", e.localizedMessage?.toString() ?: "HttpError")
             emit(Response.Failure("インターネット接続を確認してください。"))
         } catch (e: FirebaseAuthException) {
             when (e) {
@@ -103,7 +100,6 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
                 else -> emit(Response.Failure(errorMessage = "エラーです。もう一度やり直してください。"))
             }
         } catch (e: IOException) {
-            Log.d("Test", e.localizedMessage?.toString() ?: "IOError")
             emit(Response.Failure("不明のエラーが発生しました。"))
         } catch (e: Exception) {
             emit(Response.Failure(e.message.toString()))
@@ -118,7 +114,6 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
             firebaseAuth.sendPasswordResetEmail(email).await()
             emit(Response.Success(data = null))
         } catch (e: HttpException) {
-            Log.d("Test", e.localizedMessage?.toString() ?: "HttpError")
             emit(Response.Failure("インターネット接続を確認してください。"))
         } catch (e: FirebaseAuthException) {
             when (e) {
@@ -127,7 +122,6 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
                 else -> emit(Response.Failure(errorMessage = "エラーです。もう一度やり直してください。"))
             }
         } catch (e: IOException) {
-            Log.d("Test", e.localizedMessage?.toString() ?: "IOError")
             emit(Response.Failure("不明のエラーが発生しました。"))
         } catch (e: Exception) {
             emit(Response.Failure(e.message.toString()))
@@ -139,6 +133,7 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
      */
     //firebaseStorageに画像アップロード
     fun addImageToFirebaseStorageProfile(imageUri: Uri): Flow<Response<Uri>> = flow {
+        emit(Response.Loading())
         try {
             val currentUserUid = currentUser!!.uid
             // 同じuidの場合更新される
@@ -164,7 +159,6 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
                 .putFile(imageUri).await()
                 .storage.downloadUrl.await()
 
-            Log.d("onCreateView", "addImageToFirebaseStorageMessage: ${downloadUrl.toString()}")
             emit(Response.Success(data = downloadUrl))
 
         } catch (e: Throwable) {
@@ -192,7 +186,6 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
             val myFamily =
                 firebaseDatabase.reference.child(DATABASE_FAMILY).child(currentUser!!.uid).get()
                     .await()
-            val users = firebaseDatabase.reference.child(DATABASE_USERS).get().await()
             val my = firebaseDatabase.reference.child(DATABASE_USERS).child(currentUser!!.uid).get()
                 .await()
             val myInfo: User? = my.getValue(User::class.java)
@@ -202,17 +195,14 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
                     myFamilyUid.add(it.key!!)
                 }
             }
-            myFamilyUid.forEach { uid ->
-                users.children.forEach { user ->
-                    val userInfo: User? = user.getValue(User::class.java)
-                    if (uid == userInfo!!.uid) {
-
-                        val notificationModel = NotificationModel(
-                            to = userInfo.myToken!!,
-                            data = Data("MaMoRu", "${myInfo!!.name}さん $noticeMessage")
-                        )
-                        api.sendNotification(notificationModel)
-                    }
+            myFamilyUid.forEach { userUid ->
+                val userInfo = fetchUserInfo(userUid)
+                userInfo?.let {
+                    val notificationModel = NotificationModel(
+                        to = userInfo.myToken!!,
+                        data = Data("MaMoRu", "${myInfo!!.name}さん $noticeMessage")
+                    )
+                    api.sendNotification(notificationModel)
                 }
             }
         } catch (e: Throwable) {
@@ -320,17 +310,16 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
             emit(Response.Failure("ユーザーが存在しません。"))
         } catch (e: Exception) {
             emit(Response.Failure(e.message.toString()))
-            Log.d("Test", "Exception/${e.message.toString()}")
         }
     }
 
     //familyユーザー追加
-    fun registerFamily(userUid: String): Flow<Response<Nothing>> = flow {
+    fun addUserToFamily(userUid: String): Flow<Response<Nothing>> = flow {
         emit(Response.Loading())
         try {
 
-            val currentUserUid = currentUser!!.uid
             var isRegistered = false
+            val currentUserUid = currentUser!!.uid
             val familyRf = firebaseDatabase.reference.child(DATABASE_FAMILY)
             val snapshots = familyRf.child(currentUserUid).get().await()
 
@@ -361,21 +350,21 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
             emit(Response.Failure("ユーザーが存在しません。"))
         } catch (e: Exception) {
             emit(Response.Failure(e.message.toString()))
-            Log.d("Test", "Exception/${e.message.toString()}")
         }
     }
 
-    //ファミリーに変更があればrecycleViewを更新したいため、callbackFlowを使う
+    //ファミリー取得
     fun getMyFamily(): Flow<Response<MutableList<User>>> = flow {
         try {
-            var family = mutableListOf<User>()
-            val myFamilyRef = firebaseDatabase.reference.child(DATABASE_FAMILY).child(currentUser!!.uid).get().await()
+            val family = mutableListOf<User>()
+            val myFamilyRef =
+                firebaseDatabase.reference.child(DATABASE_FAMILY).child(currentUser!!.uid).get()
+                    .await()
 
-            //todo 確認用
-            myFamilyRef.children.forEach {
-                it.key?.let { userUid ->
+            myFamilyRef.children.forEach { userSnapshot ->
+                userSnapshot.key?.let { userUid ->
                     val userInfo = fetchUserInfo(userUid)
-                    family.add(userInfo)
+                    userInfo?.let { family.add(it) }
                 }
             }
             emit(Response.Success(data = family))
@@ -384,21 +373,51 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
         }
     }
 
-    private suspend fun fetchUserInfo(userUid: String): User {
+    private suspend fun fetchUserInfo(userUid: String): User? {
         return try {
             val user = firebaseDatabase.reference.child(DATABASE_USERS).child(userUid).get().await()
             val userInfo: User? = user.getValue(User::class.java)
-            userInfo!!
+            userInfo
         } catch (e: Throwable) {
             throw (e)
         }
     }
+
+    //画像表示用の仮情報を登録
+    fun createImageMessageFrame(receiverUid: String): Flow<Response<String>> =
+        flow {
+            try {
+                val currentUserUid = currentUser!!.uid
+                val senderRoom = currentUserUid + receiverUid
+                val senderRoomRef =
+                    firebaseDatabase.reference.child(DATABASE_CHAT).child(currentUserUid)
+                        .child(DATABASE_CHAT_ROOMS).child(senderRoom)
+                val receiverRoom = receiverUid + currentUserUid
+                val receiverRoomRef =
+                    firebaseDatabase.reference.child(DATABASE_CHAT).child(receiverUid)
+                        .child(DATABASE_CHAT_ROOMS).child(receiverRoom)
+
+                val imageMessageKey = firebaseDatabase.reference.push().key
+
+                val message = Message("photo", currentUserUid, null, imageFlg = true)
+                senderRoomRef.child(DATABASE_READ_CHATS).child(imageMessageKey!!).setValue(message)
+                    .await()
+                receiverRoomRef.child(DATABASE_NEW_CHATS).child(imageMessageKey).setValue(message)
+                    .await()
+
+                emit(Response.Success(data = imageMessageKey))
+
+            } catch (e: Throwable) {
+                emit(Response.Failure())
+            }
+        }
 
     //メッセージ送信
     fun sendMessage(
         receiverUid: String,
         newMessage: String?,
         imageUri: Uri?,
+        imageMessageKey: String?
     ): Flow<Response<String>> = flow {
 
         try {
@@ -422,7 +441,7 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
             val snapshot = receiverRef.get().await()
             val receiverAllNewChatCount: AllNewChatCount? =
                 snapshot.getValue(AllNewChatCount::class.java)
-            var allNewChatCountObj = HashMap<String, Any>()
+            val allNewChatCountObj = HashMap<String, Any>()
             if (receiverAllNewChatCount?.allNewChatCount != null) {
                 allNewChatCountObj["allNewChatCount"] =
                     receiverAllNewChatCount.allNewChatCount!! + 1
@@ -433,7 +452,7 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
             }
 
             val date = Date()
-            var msgObj = HashMap<String, Any>()
+            val msgObj = HashMap<String, Any>()
             val message: Message
 
             msgObj["time"] = date.time
@@ -441,31 +460,56 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
 
             if (imageUri != null) { //画像メッセージ
                 message =
-                    Message("photo", currentUserUid, imageUri.toString(), timeStamp = date.time)
+                    Message(
+                        "photo",
+                        currentUserUid,
+                        imageUri.toString(),
+                        timeStamp = date.time,
+                        imageFlg = true
+                    )
                 msgObj["lastMsg"] = "photo"
             } else {    //文字メッセージ
                 message = Message(newMessage, currentUserUid, null, timeStamp = date.time)
                 msgObj["lastMsg"] = newMessage!!
             }
 
-            val randomKey = firebaseDatabase.reference.push().key
-
-            senderRoomRef.child(DATABASE_READ_CHATS).child(randomKey!!).setValue(message).await()
-            receiverRoomRef.child(DATABASE_NEW_CHATS).child(randomKey).setValue(message).await()
-
-            val receiverNewChatCount =
-                receiverRoomRef.child(DATABASE_NEW_CHATS).get().await().childrenCount
-            //送り主のルームにはlastMsg等のみアップデートする
-            senderRoomRef.updateChildren(msgObj).await()
-
-            //受け取り側は未読チャット数も含めて更新
-            msgObj["newChatCount"] = receiverNewChatCount
-            receiverRoomRef.updateChildren(msgObj).await()
+            if (imageMessageKey != null) {  //画像メッセージ
+                setMessageToChatRoom(
+                    senderRoomRef,
+                    receiverRoomRef,
+                    imageMessageKey,
+                    message,
+                    msgObj
+                )
+            } else {
+                val randomKey = firebaseDatabase.reference.push().key
+                setMessageToChatRoom(senderRoomRef, receiverRoomRef, randomKey!!, message, msgObj)
+            }
 
             emit(Response.Success(data = receiverInfo?.myToken))
         } catch (e: Throwable) {
             emit(Response.Failure(errorMessage = "メッセージの送信に失敗しました"))
         }
+    }
+
+    private suspend fun setMessageToChatRoom(
+        senderRoomRef: DatabaseReference,
+        receiverRoomRef: DatabaseReference,
+        nodeKey: String,
+        message: Message,
+        msgObj: HashMap<String, Any>
+    ) {
+        senderRoomRef.child(DATABASE_READ_CHATS).child(nodeKey).setValue(message).await()
+        senderRoomRef.updateChildren(msgObj).await()
+
+        val receiverNewChatCount =
+            receiverRoomRef.child(DATABASE_NEW_CHATS).get().await().childrenCount
+
+        //遅い相手ユーザーがチャット画面を開いておりnewReciveMessageToReadが機能していると、newChatCountが更新される前にnewChatCountが0になり、その後遅れて
+        //newChatが更新されてしまい既読しているのに未読が1の状態になってしまうことがあるため、更新を先にしてからsetValueしている。
+        msgObj["newChatCount"] = receiverNewChatCount + 1
+        receiverRoomRef.updateChildren(msgObj).await()
+        receiverRoomRef.child(DATABASE_NEW_CHATS).child(nodeKey).setValue(message).await()
     }
 
     //新しいメッセージ受信のコールバック
@@ -510,9 +554,10 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
                         close(it)
                     }
 
+                    //全メッセージ and ルーム毎メッセージの未読カウントの更新
                     if (snapshots.exists()) {
                         val currentChatCount = snapshots.childrenCount
-                        var allNewChatCountObj = HashMap<String, Any>()
+                        val allNewChatCountObj = HashMap<String, Any>()
                         if (allNewChatCount?.allNewChatCount == null || allNewChatCount?.allNewChatCount == 0) {
                             allNewChatCountObj["allNewChatCount"] = 0
                             senderRef.updateChildren(allNewChatCountObj)
@@ -521,13 +566,14 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
                                 allNewChatCount!!.allNewChatCount!!.minus(currentChatCount)
                             senderRef.updateChildren(allNewChatCountObj)
                         }
-                        var newChatCountObj = HashMap<String, Any>()
+                        val newChatCountObj = HashMap<String, Any>()
                         newChatCountObj["newChatCount"] = 0
                         senderRoomRef!!.updateChildren(newChatCountObj)
 
+                        //既読済み処理
                         for (snapshot in snapshots.children) {
                             val nodeId = snapshot.key
-                            var message: Message? = snapshot.getValue(Message::class.java)
+                            val message: Message? = snapshot.getValue(Message::class.java)
                             val readMessageObj = HashMap<String, Any>()
                             readMessageObj["read"] = true
                             nodeId?.let {
@@ -559,7 +605,7 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
     //既存チャットルーム、新規チャットルーム追加時receiver情報追加
     fun registerReceiverInfoToSenderRoom(): Flow<Response<Nothing>> = callbackFlow {
         trySendBlocking(Response.Loading())
-        var receiverUidArray = mutableListOf<String>()
+        val receiverUidArray = mutableListOf<String>()
         var chatRooms: DatabaseReference? = null
         try {
             val currentUserUid = currentUser!!.uid
@@ -647,7 +693,7 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
     //ビーコン検出時間更新
     fun updateTimeActionDetected() {
         val currentTimeMinutes = System.currentTimeMillis() / 1000 / 60
-        var beaconObj = HashMap<String, Any>()
+        val beaconObj = HashMap<String, Any>()
         beaconObj["updateTime"] = currentTimeMinutes
         try {
             firebaseDatabase.reference.child(DATABASE_USERS).child(currentUser!!.uid)
@@ -659,7 +705,7 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
 
 
     fun updateExitToMyBeacon(isExitBeacon: Boolean) {
-        var beaconObj = HashMap<String, Any>()
+        val beaconObj = HashMap<String, Any>()
         beaconObj["exitBeacon"] = isExitBeacon
         try {
             firebaseDatabase.reference.child(DATABASE_USERS).child(currentUser!!.uid)
@@ -672,7 +718,7 @@ class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
     //エラーだったらあっピリケーションクラスのビーコンIDとかをnullにする
     fun updateMyBeacon(beaconFlg: Boolean): Flow<Response<Nothing>> = flow {
         try {
-            var beaconObj = HashMap<String, Any>()
+            val beaconObj = HashMap<String, Any>()
             val currentTimeMinutes = System.currentTimeMillis() / 1000 / 60
             beaconObj["beacon"] = beaconFlg
             beaconObj["updateTime"] = currentTimeMinutes

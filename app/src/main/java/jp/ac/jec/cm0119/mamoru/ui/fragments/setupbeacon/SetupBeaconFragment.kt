@@ -67,7 +67,6 @@ class SetupBeaconFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("Test", "onViewCreated: ")
         requestPermission()
         adapter = BeaconAdapter(childFragmentManager, viewModel)
         manager = LinearLayoutManager(requireContext())
@@ -75,9 +74,7 @@ class SetupBeaconFragment : Fragment() {
         binding.beaconRecycleView.adapter = adapter
 
         viewModel.beacons.observe(viewLifecycleOwner) { beacons ->
-            Log.d("Test", "onViewCreated: ${beacons.size}")
             if (beacons.isNotEmpty()) {
-                Log.d("Test", "onViewCreated: observe")
                 adapter.submitList(beacons)
             }
         }

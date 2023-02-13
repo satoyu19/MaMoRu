@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.ac.jec.cm0119.mamoru.models.User
-import jp.ac.jec.cm0119.mamoru.repository.DataStoreRepository
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.Response
 import jp.ac.jec.cm0119.mamoru.utils.set
@@ -32,7 +31,7 @@ class RegisterFamilyViewModel @Inject constructor(
     fun searchUser() {
         userUid.get()?.let { userId ->
             // TODO: it
-            firebaseRepo.searchUser("GilComzn8JQt13Oxbb9VQiC2aEJ2").onEach { response ->
+            firebaseRepo.searchUser("J1fv0WOXn2UDEtx0lr4fFvPgY0H3").onEach { response ->
                 when (response) {
                     is Response.Loading -> _searchUser.set(DatabaseState(isLoading = true))
                     is Response.Success -> _searchUser.set(DatabaseState(isSuccess = true, user = response.data))
@@ -42,9 +41,9 @@ class RegisterFamilyViewModel @Inject constructor(
         }
     }
 
-    fun registerFamily() {
+    fun addUserToFamily() {
         searchUserUid?.let { searchUserUid ->
-            firebaseRepo.registerFamily(searchUserUid).onEach { response ->
+            firebaseRepo.addUserToFamily(searchUserUid).onEach { response ->
                 when (response) {
                     is Response.Loading -> _registerUser.set(DatabaseState(isLoading = true))
                     is Response.Success -> _registerUser.set(DatabaseState(isSuccess = true))

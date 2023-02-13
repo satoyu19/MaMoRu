@@ -36,7 +36,7 @@ class ChatAdapter(
     private val myUid: String): FirebaseRecyclerAdapter<Message, ViewHolder>(options) {
 
     inner class SentMsgHolder(itemView: View): ViewHolder(itemView) {
-       val binding: SendMessageBinding = SendMessageBinding.bind(itemView)
+        val binding: SendMessageBinding = SendMessageBinding.bind(itemView)
     }
 
     inner class ReceiveMsgHolder(itemView: View): ViewHolder(itemView) {
@@ -78,9 +78,9 @@ class ChatAdapter(
         val message = options.snapshots[position]
         val isMyMessage = message.senderId == myUid
         return if (isMyMessage) { //自分
-            if (message.imageUrl != null) ITEM_SEND_IMG else ITEM_SEND
+            if (message.imageFlg) ITEM_SEND_IMG else ITEM_SEND
         } else {    //相手
-            if (message.imageUrl != null) ITEM_RECEIVE_IMG else ITEM_RECEIVE
+            if (message.imageFlg) ITEM_RECEIVE_IMG else ITEM_RECEIVE
         }
     }
 

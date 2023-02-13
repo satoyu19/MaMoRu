@@ -3,9 +3,6 @@ package jp.ac.jec.cm0119.mamoru.viewmodels.auth
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.ac.jec.cm0119.mamoru.repository.FirebaseRepository
 import jp.ac.jec.cm0119.mamoru.utils.uistate.AuthState
@@ -29,7 +26,7 @@ class RegisterViewModel @Inject constructor(private val firebaseRepo: FirebaseRe
 
     //Auth認証
     fun register() {
-        firebaseRepo.register(mailAddress.get()!!, password.get()!!).onEach { response ->
+        firebaseRepo.registerAuth(mailAddress.get()!!, password.get()!!).onEach { response ->
                 when (response) {
                     is Response.Loading -> _user.set(AuthState(isLoading = true))
                     is Response.Failure -> _user.set(AuthState(error = response.errorMessage, isFailure = true))

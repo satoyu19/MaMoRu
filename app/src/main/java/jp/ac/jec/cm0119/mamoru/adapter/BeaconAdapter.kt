@@ -2,7 +2,6 @@ package jp.ac.jec.cm0119.mamoru.adapter
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +16,6 @@ import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.databinding.RowBeaconBinding
 import jp.ac.jec.cm0119.mamoru.models.BeaconInfo
 import jp.ac.jec.cm0119.mamoru.viewmodels.setupbeacon.SetUpBeaconViewModel
-
 
 class BeaconAdapter(
     private val childFragmentMng: FragmentManager,
@@ -72,7 +70,6 @@ class BeaconCallBack : DiffUtil.ItemCallback<BeaconInfo>() {
         return oldBeacons == newBeacons
     }
 }
-
 class ResetSelectBeaconDialog(
     private val beacon: BeaconInfo? = null,
     private val viewModel: SetUpBeaconViewModel
@@ -80,27 +77,25 @@ class ResetSelectBeaconDialog(
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
-            var builder: AlertDialog.Builder?
+            val builder: AlertDialog.Builder?
             if (beacon != null) {    //更新
                 builder = AlertDialog.Builder(it)
                 builder.setTitle("選択したビーコンで開始しますか？")
                     .setMessage("このビーコンを利用して自身の行動を他のユーザーに知らせることができます。")
-                    .setPositiveButton("はい",
-                        DialogInterface.OnClickListener { _, _ ->
-                            viewModel.updateMyBeacon(true, beacon.uuid)
-                        })
-                    .setNegativeButton("いいえ", DialogInterface.OnClickListener { _, _ ->
-                    })
+                    .setPositiveButton("はい") { _, _ ->
+                        viewModel.updateMyBeacon(true, beacon.uuid)
+                    }
+                    .setNegativeButton("いいえ") { _, _ ->
+                    }
             } else {
                 builder = AlertDialog.Builder(it)
                 builder.setTitle("選択したビーコンを解除しますか？")
                     .setMessage("このビーコンを使った機能を停止します。")
-                    .setPositiveButton("はい",
-                        DialogInterface.OnClickListener { _, _ ->
+                    .setPositiveButton("はい") { _, _ ->
                             viewModel.updateMyBeacon(false, null)
-                        })
-                    .setNegativeButton("いいえ", DialogInterface.OnClickListener { _, _ ->
-                    })
+                        }
+                    .setNegativeButton("いいえ") { _, _ ->
+                    }
             }
 
             builder.create()

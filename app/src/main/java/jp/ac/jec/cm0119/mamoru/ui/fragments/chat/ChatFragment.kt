@@ -41,7 +41,8 @@ class ChatFragment : Fragment() {
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
             imageUri?.let {
-                viewModel.addImageToStorage(it)
+                Log.d("Test", "ok: ")
+                viewModel.createImageMessageFrame(it)
             }
         }
 
@@ -52,13 +53,13 @@ class ChatFragment : Fragment() {
         _binding = FragmentChatBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
-        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.imageMessage.collect { state ->
                         if (state?.isSuccess == true) {
-                            viewModel.sendMessage(state.data)
+                            Log.d("Test", "onCreateView: send")
+                            viewModel.sendMessage(state.data, state.imageMessageKey)
                         }
                         if (state?.isFailure == true) {
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
@@ -112,7 +113,7 @@ class ChatFragment : Fragment() {
 
 
         viewModel.authCurrentUser?.let { my ->
-            var options = viewModel.options!!
+            val options = viewModel.options!!
             adapter = ChatAdapter(options, my.uid)
             manager = LinearLayoutManager(requireContext())
             binding.chatRecycleView.layoutManager = manager
@@ -129,8 +130,13 @@ class ChatFragment : Fragment() {
             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
         })
 
+        viewModel.imageFrameFailure.observe(viewLifecycleOwner, Observer { errorMessage ->
+            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        })
+
         adapter.startListening()
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

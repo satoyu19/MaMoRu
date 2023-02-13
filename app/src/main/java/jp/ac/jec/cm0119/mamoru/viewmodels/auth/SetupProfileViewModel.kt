@@ -44,6 +44,7 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
     fun addImageToStorage(imageUrl: Uri) {
             firebaseRepo.addImageToFirebaseStorageProfile(imageUrl).onEach { response ->
                 when (response) {
+                    is Response.Loading -> _profileImageData.set(StorageState(isLoading = true))
                     is Response.Success -> {
                         _profileImageData.set(StorageState(isSuccess = true, data = response.data))
                         profileImageUrl = response.data.toString()
@@ -71,7 +72,6 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
 
     //カレンダー生成
     fun makeCalender(fragmentManager: FragmentManager) {
-        // TODO: レイアウト調整
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setTitleText("誕生日を選択")
             .build()
@@ -88,7 +88,6 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
             name = nameText.get() ?: "",
             uid = firebaseRepo.currentUser!!.uid,
             mail = firebaseRepo.currentUser!!.email ?: "",
-            phoneNumber = phoneNumber.get(),
             profileImage = profileImageUrl,
             description = description.get(),
             birthDay = birthDay.get(),

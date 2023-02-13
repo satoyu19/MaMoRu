@@ -41,7 +41,7 @@ class BeaconService(
             val channelId = "beacon"
             beaconManager = BeaconManager.getInstanceForApplication(application)
             val builder = NotificationCompat.Builder(application, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher) //todo　アイコン変更
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Beacon検知中")
                 .setContentText("領域監視を実行しています")
 
@@ -97,7 +97,7 @@ class BeaconService(
     }
 
     override fun didEnterRegion(region: Region?) {
-        Log.d("Test", "didEnterRegion: ${region?.id1}")
+        Log.d("Test", "didEnterRegion: ")
         if (selectedBeaconId != null) {
             firebaseRepo.updateExitToMyBeacon(false)
             updateIsExitBeacon(false)
@@ -107,7 +107,7 @@ class BeaconService(
     }
 
     override fun didExitRegion(region: Region?) {
-        Log.d("Test", "didExitRegion: ${region?.id1}")
+        Log.d("Test", "didExitRegion")
         if (selectedBeaconId != null) {
             firebaseRepo.updateExitToMyBeacon(true)
             updateIsExitBeacon(true)
@@ -119,16 +119,15 @@ class BeaconService(
 
     override fun didRangeBeaconsInRegion(beacons: MutableCollection<Beacon>?, region: Region?) {
         var detectionBeacons = mutableListOf<BeaconInfo>()
-
+        Log.d("Test", "Beacons / ${beacons?.size}")
         beacons?.forEach { beacon ->
-            Log.d("Test", "didRangeBeaconsInRegion: ")
             if (selectedBeaconId == beacon.id1.toString()) {   //監視対象ビーコンあり
                 val currentTimeMinutes = System.currentTimeMillis() / 1000 / 60
 
                 if (isExitBeacon == true) {   //外出中 or ビーコン不良
                     beaconTime?.let {
                         val timeDifference = (currentTimeMinutes - it).toInt()
-                        var noticeText: String? = null
+                        var noticeText: String?
                         if (timeDifference == 29 && isNotified) {
                             updateIsNotified(false)
                         }
@@ -157,7 +156,7 @@ class BeaconService(
                 } else {
                     beaconTime?.let {
                         val timeDifference = (currentTimeMinutes - it).toInt()
-                        var noticeText: String? = null
+                        var noticeText: String?
                         if (timeDifference == 29 && isNotified) { //30分通知の一分前
                             updateIsNotified(false)
                         }
@@ -193,8 +192,7 @@ class BeaconService(
             }
             val beaconInfo = BeaconInfo(
                 uuid = beacon.id1.toString(),
-                distance = beacon.distance.toString(),
-                macAddress = beacon.bluetoothAddress
+                distance = beacon.distance.toString()
             )
             detectionBeacons.add(beaconInfo)
         }

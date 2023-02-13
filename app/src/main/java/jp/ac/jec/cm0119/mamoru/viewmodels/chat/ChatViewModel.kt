@@ -1,6 +1,8 @@
 package jp.ac.jec.cm0119.mamoru.viewmodels.chat
 
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -46,13 +48,16 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
     private var _imageMessage = MutableStateFlow<StorageState?>(null)
     val imageMessage: StateFlow<StorageState?> = _imageMessage
 
+    private var _imageFrameFailure = MutableLiveData<String>()
+    val imageFrameFailure: LiveData<String> = _imageFrameFailure
+
     fun setOptions() {
         options = receiverUid?.let { firebaseRepo.getMessageOptions(it) }
     }
 
-    fun sendMessage(imageUri: Uri? = null) {
+    fun sendMessage(imageUri: Uri? = null, imageMessageKey: String? = null) {
         receiverUid?.let { receiverUid ->
-            firebaseRepo.sendMessage(receiverUid, message.get(), imageUri).onEach { response ->
+            firebaseRepo.sendMessage(receiverUid, message.get(), imageUri, imageMessageKey).onEach { response ->
                 if (response is Response.Success) {
                     _sendMessage.set(DatabaseState(isSuccess = true, token = response.data))
                 }
@@ -64,6 +69,21 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
         message.set("")
     }
 
+    fun createImageMessageFrame(imageUri: Uri) {
+        receiverUid?.let { receiverUid ->
+            Log.d("Test", "createImageMessageFrame: receiverUidOk")
+            firebaseRepo.createImageMessageFrame(receiverUid).onEach { response ->
+                if (response is Response.Success) {
+                    Log.d("Test", "createImageMessageFrame: ")
+                    addImageToStorage(imageUri, response.data)
+                }
+                if (response is Response.Failure) {
+                    _imageFrameFailure.value = "送信が正常に行われませんでした。"
+                }
+            }.launchIn(viewModelScope)
+        }
+    }
+
     fun receiveMessageToRead() {
         receiverUid?.let {
             firebaseRepo.newReceiveMessageToRead(it).onEach { response ->
@@ -72,13 +92,14 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
         }
     }
 
-    fun addImageToStorage(imageUrl: Uri) {
+    fun addImageToStorage(imageUrl: Uri, imageMessageKey: String?) {
         firebaseRepo.addImageToFirebaseStorageMessage(imageUrl).onEach { response ->
             when (response) {
                 is Response.Success -> _imageMessage.set(
                     StorageState(
                         isSuccess = true,
-                        data = response.data
+                        data = response.data,
+                        imageMessageKey = imageMessageKey
                     )
                 )
                 is Response.Failure -> _imageMessage.set(
@@ -98,7 +119,8 @@ class ChatViewModel @Inject constructor(private val firebaseRepo: FirebaseReposi
 
     fun sendNotificationMessageToReceiver(token: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val notificationModel = NotificationModel(to = token, data = Data("MaMoRu", "メッセージを受信しました。"))
+            val notificationModel =
+                NotificationModel(to = token, data = Data("MaMoRu", "メッセージを受信しました。"))
             firebaseRepo.sendNotificationMessageToReceiver(notificationModel)
         }
     }

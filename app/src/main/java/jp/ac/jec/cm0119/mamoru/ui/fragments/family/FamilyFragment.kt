@@ -46,7 +46,6 @@ class FamilyFragment : Fragment() {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.myFamily.collect { state ->
                     if (state?.isSuccess == true) {
-                        //todo firebaseのfamilyに追加されても表示されない。別フラグメントから戻ると表示される、とりあえず次ログ入れたの確認
                         if (state.myFamily!!.isNotEmpty()) {
                             adapter.submitList(state.myFamily)
                             binding.familyRecycleView.visibility = View.VISIBLE

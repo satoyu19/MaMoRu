@@ -19,8 +19,20 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/setup_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-        >
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                android:id="@+id/progressBar8"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:indeterminate="true"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profileImage"
                 android:layout_width="120dp"
@@ -29,7 +41,7 @@
                 android:src="@drawable/ic_account"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/progressBar8" />
 
             <TextView
                 android:id="@+id/profile_txt"
@@ -45,16 +57,18 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/name_layout"
-                app:boxBackgroundColor="@android:color/transparent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
                 android:hint="@string/name_hint"
+                app:boxBackgroundColor="@android:color/transparent"
+                app:layout_constraintBottom_toTopOf="@+id/birthday_layout"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/profile_txt">
+                app:layout_constraintTop_toBottomOf="@+id/profile_txt">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/name"
@@ -67,16 +81,18 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/birthday_layout"
-                app:boxBackgroundColor="@android:color/transparent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="16dp"
                 android:hint="@string/birthday"
+                app:boxBackgroundColor="@android:color/transparent"
                 app:endIconDrawable="@drawable/ic_calendar"
                 app:endIconMode="custom"
+                app:layout_constraintBottom_toTopOf="@+id/description_layout"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/name_layout">
 
@@ -90,14 +106,16 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/description_layout"
-                app:boxBackgroundColor="@android:color/transparent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="16dp"
                 android:hint="@string/description"
+                app:boxBackgroundColor="@android:color/transparent"
+                app:layout_constraintBottom_toTopOf="@+id/setupBtn"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/birthday_layout">
 
@@ -106,30 +124,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lines="1"
-                    android:text="@={viewModel.description}"
-                    />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/phone_number_layout"
-                app:boxBackgroundColor="@android:color/transparent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="16dp"
-                android:hint="@string/phone_number_hint"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/description_layout">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/phone_number"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:lines="1"
-                    android:text="@={viewModel.phoneNumber}"
-                    />
+                    android:text="@={viewModel.description}" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
@@ -137,16 +132,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="60dp"
-                android:layout_marginTop="45dp"
+                android:layout_marginTop="60dp"
                 android:layout_marginEnd="60dp"
+                android:layout_marginBottom="60dp"
                 android:backgroundTint="@color/inactive"
                 android:enabled="false"
                 android:text="@string/register_btn"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/phone_number_layout" />
+                app:layout_constraintTop_toBottomOf="@+id/description_layout" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <ProgressBar
             android:id="@+id/progressBar3"

@@ -32,6 +32,8 @@ class UpdateProfileFragment : Fragment() {
 
     private val viewModel: UpdateProfileViewModel by viewModels()
 
+    private var isLoadImage = false
+
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
             imageUri?.let {
@@ -46,19 +48,35 @@ class UpdateProfileFragment : Fragment() {
         _binding = FragmentUpdateProfileBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
-        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 launch {
                     viewModel.profileImageData.collect { state ->
+                        if (state?.isLoading == true) {
+                            binding.progressBar9.visibility = View.VISIBLE
+                            binding.updateBtn.isEnabled = false
+                            isLoadImage = true
+                        }
                         if (state?.isSuccess == true) {
                             Glide.with(requireContext())
                                 .load(state.data.toString())
                                 .placeholder(R.drawable.ic_account)
                                 .into(binding.profileImage)
+                            binding.progressBar9.visibility = View.INVISIBLE
+                            isLoadImage = false
+                            if (!binding.name.text.isNullOrEmpty()) {
+                                binding.updateBtn.isEnabled = true
+                                changeButtonColor(R.color.active)
+                            }
                         }
                         if (state?.isFailure == true) {
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                            binding.progressBar9.visibility = View.INVISIBLE
+                            isLoadImage = false
+                            if (!binding.name.text.isNullOrEmpty()) {
+                                binding.updateBtn.isEnabled = true
+                                changeButtonColor(R.color.active)
+                            }
                         }
                     }
                 }
@@ -130,26 +148,25 @@ class UpdateProfileFragment : Fragment() {
         _binding = null
     }
 
+    fun changeButtonColor(color: Int) {
+        binding.updateBtn.setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                color
+            )
+        )
+    }
+
     inner class UpdateButtonObserver(private val setupBtn: Button) : TextWatcher {
 
         override fun onTextChanged(charSequence: CharSequence?, p1: Int, p2: Int, p3: Int) {
             setupBtn.isEnabled = charSequence.toString().trim().isNotEmpty()
-            if (charSequence.toString().trim().isNotEmpty()) {
+            if (charSequence.toString().trim().isNotEmpty() && !isLoadImage) {
                 binding.updateBtn.isEnabled = true
-                binding.updateBtn.setBackgroundColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.active
-                    )
-                )
+                changeButtonColor(R.color.active)
             } else {
                 binding.updateBtn.isEnabled = false
-                binding.updateBtn.setBackgroundColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.inactive
-                    )
-                )
+                changeButtonColor(R.color.inactive)
             }
         }
 

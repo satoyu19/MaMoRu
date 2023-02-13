@@ -26,12 +26,9 @@ import javax.inject.Inject
 @ActivityRetainedScoped
 class DataStoreRepository @Inject constructor(@ApplicationContext private val context: Context) {
 
-    // TODO: 項目の精査
     private object PreferenceKeys {
         val myUid = stringPreferencesKey(PREFERENCES_MY_UID)
         val myName = stringPreferencesKey(PREFERENCES_MY_NAME)
-        val myMail = stringPreferencesKey(PREFERENCES_MY_MAIL)
-        val myPhoneNumber = stringPreferencesKey(PREFERENCES_MY_PHONE_NUMBER)
         val myProfileImage = stringPreferencesKey(PREFERENCES_MY_PROFILE_IMAGE)
         val myDescription = stringPreferencesKey(PREFERENCES_MY_DESCRIPTION)
         val myBirthDay = stringPreferencesKey(PREFERENCES_MY_BIRTHDAY)
@@ -44,8 +41,6 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         context.dataStore.edit { preferences ->
             preferences[PreferenceKeys.myUid] = myState.uid ?: ""
             preferences[PreferenceKeys.myName] = myState.name ?: ""
-            preferences[PreferenceKeys.myMail] = myState.mail ?: ""
-            preferences[PreferenceKeys.myPhoneNumber] = myState.phoneNumber ?: ""
             preferences[PreferenceKeys.myProfileImage] = myState.profileImage ?: ""
             preferences[PreferenceKeys.myDescription] = myState.description ?: ""
             preferences[PreferenceKeys.myBirthDay] = myState.birthDay ?: ""
@@ -57,7 +52,6 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
     suspend fun renewalMyInfo(myState: User) {
         context.dataStore.edit { preferences ->
             preferences[PreferenceKeys.myName] = myState.name ?: ""
-            preferences[PreferenceKeys.myPhoneNumber] = myState.phoneNumber ?: ""
             preferences[PreferenceKeys.myProfileImage] = myState.profileImage ?: ""
             preferences[PreferenceKeys.myDescription] = myState.description ?: ""
             preferences[PreferenceKeys.myBirthDay] = myState.birthDay ?: ""
@@ -75,21 +69,17 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         .map { preferences ->
             val myUid = preferences[PreferenceKeys.myUid] ?: ""
             val myName = preferences[PreferenceKeys.myName] ?: ""
-            val myMail = preferences[PreferenceKeys.myMail] ?: ""
-            val myPhoneNumber = preferences[PreferenceKeys.myPhoneNumber] ?: ""
             val myProfileImage = preferences[PreferenceKeys.myProfileImage] ?: ""
             val myDescription = preferences[PreferenceKeys.myDescription] ?: ""
             val myBirthDay = preferences[PreferenceKeys.myBirthDay] ?: ""
             val myBeacon = preferences[PreferenceKeys.myBeacon] ?: false
             User(
-                myUid,
-                myName,
-                myMail,
-                myPhoneNumber,
-                myProfileImage,
-                myDescription,
-                myBirthDay,
-                myBeacon
+                uid = myUid,
+                name = myName,
+                profileImage = myProfileImage,
+                description = myDescription,
+                birthDay = myBirthDay,
+                beacon = myBeacon
             )
         }
 }

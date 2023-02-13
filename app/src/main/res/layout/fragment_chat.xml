@@ -18,7 +18,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/chat_bar"
+            android:background="@color/active"
             android:minHeight="?attr/actionBarSize"
             app:layout_constraintVertical_weight="1"
             android:theme="?attr/actionBarTheme"
@@ -42,7 +42,7 @@
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_gravity="center"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:src="@drawable/ic_account" />
 
             <TextView
@@ -64,15 +64,17 @@
             android:id="@+id/chat_recycle_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintVertical_weight="7"
             app:layout_constraintBottom_toTopOf="@+id/materialCardView"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintVertical_weight="9" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/materialCardView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintVertical_weight="1"
+            app:layout_constraintVertical_weight="1.2"
             android:padding="10dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="10dp"

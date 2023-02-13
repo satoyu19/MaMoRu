@@ -40,7 +40,6 @@ class LoginFragment : Fragment() {
             val action = LoginFragmentDirections.actionLoginFragmentToSetupProfileFragment()
             NavHostFragment.findNavController(this).navigate(action)
         }
-        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.verification.collect { State ->

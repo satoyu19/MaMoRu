@@ -25,10 +25,8 @@ class UpdateProfileViewModel @Inject constructor(
     private val dataStoreRepo: DataStoreRepository
 ) : ViewModel() {
 
-    // TODO: バックグラウンドから復帰すると値を変更していたとしても以前の値に戻ってしまう
     var nameText = ObservableField<String>()
     var description = ObservableField<String>()
-    var phoneNumber = ObservableField<String>()
     var birthDay = ObservableField<String>()
 
     var readMyUser: Flow<User> = dataStoreRepo.readMyInfo
@@ -48,21 +46,21 @@ class UpdateProfileViewModel @Inject constructor(
     fun setMyState(myState: User) {
         nameText.set(myState.name)
         description.set(myState.description)
-        phoneNumber.set(myState.phoneNumber)
         birthDay.set(myState.birthDay)
     }
 
     fun addImageToStorage(imageUrl: Uri) {
         firebaseRepo.addImageToFirebaseStorageProfile(imageUrl).onEach { response ->
             when (response) {
+                is Response.Loading -> {
+                    _profileImageData.set(StorageState(isLoading = true))
+                }
                 is Response.Success -> {
                     _profileImageData.set(StorageState(isSuccess = true,data = response.data))
                     profileImageUrl = response.data.toString()
                 }
                 is Response.Failure ->
                     _profileImageData.set(StorageState(isFailure = true, error = response.errorMessage))
-
-                else -> {}
             }
         }.launchIn(viewModelScope)
     }

@@ -32,12 +32,15 @@ class SetupProfileFragment : Fragment() {
 
     private val viewModel: SetupProfileViewModel by viewModels()
 
+    private var isLoadImage = false
+
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
             imageUri?.let {
                 viewModel.addImageToStorage(imageUri)
             }
         }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,19 +48,35 @@ class SetupProfileFragment : Fragment() {
         _binding = FragmentSetupProfileBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
-        /**Flow collect**/
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.profileImageData.collect { state ->
+                        if (state?.isLoading == true) {
+                            Log.d("Test", "onCreateView: ")
+                            binding.progressBar8.visibility = View.VISIBLE
+                            isLoadImage = true
+                            binding.setupBtn.isEnabled = false
+                        }
                         if (state?.isSuccess == true) {   //成功
                             Glide.with(requireContext())
                                 .load(state.data.toString())
                                 .placeholder(R.drawable.ic_account)
                                 .into(binding.profileImage)
+                            binding.progressBar8.visibility = View.INVISIBLE
+                            if (!binding.name.text.isNullOrEmpty()) {
+                                binding.setupBtn.isEnabled = true
+                                changeButtonColor(R.color.active)
+                            }
+                            isLoadImage = false
                         }
                         if (state?.isFailure == true) {
                             Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
+                            binding.progressBar8.visibility = View.INVISIBLE
+                            if (!binding.name.text.isNullOrEmpty()) {
+                                binding.setupBtn.isEnabled = true
+                                changeButtonColor(R.color.active)
+                            }
                         }
                     }
                 }
@@ -68,8 +87,10 @@ class SetupProfileFragment : Fragment() {
                             binding.setupLayout.visibility = View.INVISIBLE
                         }
                         if (state?.isSuccess == true) {   //成功
-                            val action = SetupProfileFragmentDirections.actionSetupProfileFragmentToMainActivity()
-                            NavHostFragment.findNavController(this@SetupProfileFragment).navigate(action)
+                            val action =
+                                SetupProfileFragmentDirections.actionSetupProfileFragmentToMainActivity()
+                            NavHostFragment.findNavController(this@SetupProfileFragment)
+                                .navigate(action)
                         }
                         if (state?.isFailure == true) {
                             binding.progressBar3.visibility = View.INVISIBLE
@@ -109,21 +130,29 @@ class SetupProfileFragment : Fragment() {
         _binding = null
     }
 
+    fun changeButtonColor(color: Int) {
+        binding.setupBtn.setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                color
+            )
+        )
+    }
+
     inner class SetupButtonObserver(private val setupBtn: Button) : TextWatcher {
 
         override fun onTextChanged(charSequence: CharSequence?, p1: Int, p2: Int, p3: Int) {
             setupBtn.isEnabled = charSequence.toString().trim().isNotEmpty()
-            if (charSequence.toString().trim().isNotEmpty()) {
+            if (charSequence.toString().trim().isNotEmpty() && !isLoadImage) {
                 binding.setupBtn.isEnabled = true
-                binding.setupBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.active))
+                changeButtonColor(R.color.active)
             } else {
                 binding.setupBtn.isEnabled = false
-                binding.setupBtn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.inactive))
+                changeButtonColor(R.color.inactive)
             }
         }
 
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
         override fun afterTextChanged(p0: Editable?) {}
-
     }
 }

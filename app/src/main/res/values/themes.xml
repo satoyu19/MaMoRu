@@ -10,7 +10,33 @@
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">#0E69D6</item>
+        <item name="android:statusBarColor">@color/active</item>
         <!-- Customize your theme here. -->
+        <item name="bottomNavigationStyle">@style/BottomNavigationViewStyle</item>
+
+        <item name="materialCalendarTheme">@style/ThemeOverlay.App.DatePicker</item>
+
+    </style>
+
+    <style name="BottomNavigationViewStyle" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="android:background">@color/white</item>
+        <item name="itemIconTint">@color/bottom_icon</item>
+        <item name="itemTextColor">@color/bottom_font</item>
+    </style>
+
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">cut</item>
+    </style>
+
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="ThemeOverlay.App.DatePicker" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/active</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <!-- Customize text field of the text input mode. -->
     </style>
 </resources>

@@ -2,7 +2,6 @@ package jp.ac.jec.cm0119.mamoru.ui.fragments.family
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,19 +9,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
-import jp.ac.jec.cm0119.mamoru.R
 import jp.ac.jec.cm0119.mamoru.adapter.FamilyAdapter
 import jp.ac.jec.cm0119.mamoru.databinding.FragmentFamilyBinding
 import jp.ac.jec.cm0119.mamoru.viewmodels.family.FamilyViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -39,7 +34,7 @@ class FamilyFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentFamilyBinding.inflate(layoutInflater)
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -59,7 +54,7 @@ class FamilyFragment : Fragment() {
                         binding.swipedLayout.isRefreshing = false
                     }
                     if (state?.isFailure == true) {
-
+                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -87,6 +82,7 @@ class FamilyFragment : Fragment() {
         binding.swipedLayout.setOnRefreshListener {
             viewModel.getMyFamily()
         }
+
         binding.swipedLayout.setProgressBackgroundColorSchemeColor(Color.TRANSPARENT)
         binding.swipedLayout.setColorSchemeColors(Color.TRANSPARENT)
 

@@ -32,9 +32,11 @@ import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.collections.HashMap
 
 
+@Singleton
 class FirebaseRepository @Inject constructor(private val api: ApiInterface) {
 
     private var firebaseAuth: FirebaseAuth = Firebase.auth

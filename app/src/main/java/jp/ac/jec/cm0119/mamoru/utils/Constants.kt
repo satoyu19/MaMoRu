@@ -16,8 +16,6 @@ object Constants {
     const val PREFERENCES_NAME = "mamoru_preferences"
     const val PREFERENCES_MY_UID = "myUid"
     const val PREFERENCES_MY_NAME = "myName"
-    const val PREFERENCES_MY_MAIL = "myMail"
-    const val PREFERENCES_MY_PHONE_NUMBER = "myPhoneNumber"
     const val PREFERENCES_MY_PROFILE_IMAGE = "myProfileImage"
     const val PREFERENCES_MY_DESCRIPTION = "myDescription"
     const val PREFERENCES_MY_BIRTHDAY = "myBirthDay"

@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -23,7 +22,6 @@ import jp.ac.jec.cm0119.mamoru.databinding.FragmentSetupBeaconBinding
 import jp.ac.jec.cm0119.mamoru.ui.MainActivity
 import jp.ac.jec.cm0119.mamoru.viewmodels.setupbeacon.SetUpBeaconViewModel
 import kotlinx.coroutines.launch
-import org.altbeacon.beacon.*
 
 @AndroidEntryPoint
 class SetupBeaconFragment : Fragment() {
@@ -46,7 +44,7 @@ class SetupBeaconFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentSetupBeaconBinding.inflate(layoutInflater)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {

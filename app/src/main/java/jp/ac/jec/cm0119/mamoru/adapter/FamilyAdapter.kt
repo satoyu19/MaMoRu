@@ -64,7 +64,7 @@ class FamilyAdapter : ListAdapter<User, FamilyAdapter.UserViewHolder>(FamilyCall
 class FamilyCallback : DiffUtil.ItemCallback<User>() {
 
     override fun areItemsTheSame(oldFamily: User, newFamily: User): Boolean {
-        return oldFamily.uid == newFamily.uid
+        return oldFamily.uid == newFamily.uid && oldFamily.updateTime != newFamily.updateTime
     }
 
     override fun areContentsTheSame(oldFamily: User, newFamily: User): Boolean {

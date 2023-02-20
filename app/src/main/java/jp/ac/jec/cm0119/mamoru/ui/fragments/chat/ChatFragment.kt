@@ -41,7 +41,6 @@ class ChatFragment : Fragment() {
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
             imageUri?.let {
-                Log.d("Test", "ok: ")
                 viewModel.createImageMessageFrame(it)
             }
         }
@@ -49,7 +48,7 @@ class ChatFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentChatBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
@@ -58,7 +57,6 @@ class ChatFragment : Fragment() {
                 launch {
                     viewModel.imageMessage.collect { state ->
                         if (state?.isSuccess == true) {
-                            Log.d("Test", "onCreateView: send")
                             viewModel.sendMessage(state.data, state.imageMessageKey)
                         }
                         if (state?.isFailure == true) {
@@ -69,7 +67,6 @@ class ChatFragment : Fragment() {
                 launch {
                     viewModel.sendMessage.collect {state ->
                         if (state?.isSuccess == true) {
-                            Log.d("Test", "onCreateView: ${state.token}")
                             state.token?.let { viewModel.sendNotificationMessageToReceiver(it) }
                         }
                         if (state?.isFailure == true) {

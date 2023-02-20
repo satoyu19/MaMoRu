@@ -1,7 +1,5 @@
 package jp.ac.jec.cm0119.mamoru.viewmodels.chat
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.firebase.ui.database.FirebaseRecyclerOptions

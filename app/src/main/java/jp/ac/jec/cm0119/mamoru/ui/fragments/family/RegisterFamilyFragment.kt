@@ -32,7 +32,7 @@ class RegisterFamilyFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentRegisterFamilyBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 

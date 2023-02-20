@@ -2,7 +2,6 @@ package jp.ac.jec.cm0119.mamoru.Service
 
 import android.app.Application
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.util.Log
@@ -118,7 +117,7 @@ class BeaconService(
     }
 
     override fun didRangeBeaconsInRegion(beacons: MutableCollection<Beacon>?, region: Region?) {
-        var detectionBeacons = mutableListOf<BeaconInfo>()
+        val detectionBeacons = mutableListOf<BeaconInfo>()
         Log.d("Test", "Beacons / ${beacons?.size}")
         beacons?.forEach { beacon ->
             if (selectedBeaconId == beacon.id1.toString()) {   //監視対象ビーコンあり

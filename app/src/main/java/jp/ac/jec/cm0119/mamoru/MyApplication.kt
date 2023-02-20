@@ -4,7 +4,6 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.database.FirebaseDatabase
@@ -16,8 +15,6 @@ import kotlinx.coroutines.SupervisorJob
 import org.altbeacon.beacon.BeaconManager
 import org.altbeacon.beacon.Identifier
 import org.altbeacon.beacon.Region
-import java.util.UUID
-import kotlin.math.log
 
 @HiltAndroidApp
 class MyApplication : Application() {

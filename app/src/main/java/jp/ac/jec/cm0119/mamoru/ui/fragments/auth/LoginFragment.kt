@@ -31,7 +31,7 @@ class LoginFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentLoginBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
@@ -89,11 +89,11 @@ class LoginFragment : Fragment() {
         NavHostFragment.findNavController(this).navigate(action)
     }
 
-    inner class LoginButtonObserver() : TextWatcher {
+    inner class LoginButtonObserver : TextWatcher {
 
         override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            var mailInput: String = binding.loginMailAddress.text.toString()
-            var passwordInput: String = binding.loginPassword.text.toString()
+            val mailInput: String = binding.loginMailAddress.text.toString()
+            val passwordInput: String = binding.loginPassword.text.toString()
 
             if (mailInput.isNotBlank() && passwordInput.isNotBlank()) {
                 binding.loginBtn.isEnabled = true

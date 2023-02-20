@@ -11,9 +11,7 @@ import jp.ac.jec.cm0119.mamoru.repository.DataStoreRepository.PreferenceKeys.dat
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_BEACON
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_BIRTHDAY
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_DESCRIPTION
-import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_MAIL
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_NAME
-import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_PHONE_NUMBER
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_PROFILE_IMAGE
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_MY_UID
 import jp.ac.jec.cm0119.mamoru.utils.Constants.PREFERENCES_NAME

@@ -30,8 +30,7 @@ class RegisterFamilyViewModel @Inject constructor(
 
     fun searchUser() {
         userUid.get()?.let { userId ->
-            // TODO: it
-            firebaseRepo.searchUser("J1fv0WOXn2UDEtx0lr4fFvPgY0H3").onEach { response ->
+            firebaseRepo.searchUser(userId).onEach { response ->
                 when (response) {
                     is Response.Loading -> _searchUser.set(DatabaseState(isLoading = true))
                     is Response.Success -> _searchUser.set(DatabaseState(isSuccess = true, user = response.data))

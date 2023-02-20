@@ -2,7 +2,6 @@ package jp.ac.jec.cm0119.mamoru.viewmodels.chat
 
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

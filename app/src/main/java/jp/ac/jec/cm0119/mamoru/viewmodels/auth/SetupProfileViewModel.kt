@@ -25,7 +25,6 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
 
     var nameText = ObservableField<String>()
     var description = ObservableField<String>()
-    var phoneNumber = ObservableField<String>()
     var birthDay = ObservableField<String>()
 
     private var _profileImageData = MutableStateFlow<StorageState?>(null)
@@ -50,7 +49,6 @@ class SetupProfileViewModel @Inject constructor(private val firebaseRepo: Fireba
                         profileImageUrl = response.data.toString()
                     }
                     is Response.Failure -> _profileImageData.set(StorageState(isFailure = true, error = response.errorMessage))
-                    else -> {}
                 }
             }.launchIn(viewModelScope)
     }

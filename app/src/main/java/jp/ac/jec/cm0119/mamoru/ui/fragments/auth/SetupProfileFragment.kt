@@ -44,7 +44,7 @@ class SetupProfileFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentSetupProfileBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 

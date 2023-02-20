@@ -3,7 +3,6 @@ package jp.ac.jec.cm0119.mamoru.ui.fragments.auth
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -32,7 +31,7 @@ class RegisterFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentRegisterBinding.inflate(layoutInflater)
         binding.viewModel = viewModel
 
@@ -82,11 +81,11 @@ class RegisterFragment : Fragment() {
         _binding = null
     }
 
-    inner class RegisterButtonObserver() : TextWatcher {
+    inner class RegisterButtonObserver : TextWatcher {
 
         override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            var mailInput: String = binding.registerMailAddress.text.toString()
-            var passwordInput: String = binding.registerPassword.text.toString()
+            val mailInput: String = binding.registerMailAddress.text.toString()
+            val passwordInput: String = binding.registerPassword.text.toString()
 
             if (mailInput.isNotBlank() && passwordInput.isNotBlank()) {
                 binding.registerBtn.isEnabled = true
